@@ -92,7 +92,6 @@ eu-digital-app/
 │   ├── services/          # IngestService (unzip, valida, store)
 │   ├── models/            # Schemas Mongoose
 │   ├── schemas/           # JSON Schema para manifesto-SIP
-│   ├── docs/              # OpenAPI spec (openapi.yaml)
 │   ├── tests/             # Jest + Supertest suites
 │   ├── tmp/               # Pasta temporária de unzip (limpa-se)
 │   └── storage/           # Ficheiros copiados organizados por data
