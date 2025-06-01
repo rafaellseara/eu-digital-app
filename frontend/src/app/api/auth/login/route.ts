@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
+const JWT_SECRET = "uma_chave_super_secreta"
 const API_BASE = process.env.API_BASE || "http://localhost:3000/api"
 
 export async function POST(request: NextRequest) {
