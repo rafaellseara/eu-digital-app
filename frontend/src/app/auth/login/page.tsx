@@ -24,7 +24,7 @@ export default function LoginPage() {
   const { login } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectUrl = searchParams.get("redirect") || "/admin"
+  const redirectUrl = searchParams.get("redirect") || "/"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,7 +43,6 @@ export default function LoginPage() {
   }
 
   const handleSocialLogin = (provider: string) => {
-    // Implementar login social aqui
     console.log(`Login com ${provider}`)
   }
 
@@ -101,7 +100,6 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Entrando...
                 </>
               ) : (
                 "Entrar"
@@ -145,29 +143,15 @@ export default function LoginPage() {
               </svg>
               Google
             </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("facebook")}
-              disabled={isLoading}
-            >
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Facebook
-            </Button>
           </div>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-slate-600">
               Não tem conta?{" "}
-              <Link href="/auth/register" className="text-blue-600 hover:underline">
-                Registar-se
+              <Link href="/auth/register" className="text-black font-semibold hover:underline">
+                Registo
               </Link>
             </p>
-            <Link href="/" className="text-sm text-slate-600 hover:text-slate-800 block">
-              ← Voltar ao site público
-            </Link>
           </div>
         </CardContent>
       </Card>

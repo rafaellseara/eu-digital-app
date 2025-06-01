@@ -45,16 +45,15 @@ export default function HomePage() {
             Uma plataforma para registar e explorar a jornada cronológica de momentos, pensamentos e experiências.
           </p>
 
-          {/* Mensagem personalizada se o usuário estiver logado */}
           {user && (
             <div className="mt-6 p-4 rounded-lg max-w-md mx-auto">
               <p>
                 Bem-vindo de volta, <strong>{user.username}</strong>!
               </p>
               <Link href="/admin">
-                <Button className="mt-2" size="sm">
+                <Button className="mt-6" size="sm">
                   <Plus className="w-4 h-4 mr-2" />
-                  Criar um post
+                  Adicionar novo item
                 </Button>
               </Link>
             </div>
@@ -64,16 +63,6 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-slate-800">Escolha um perfil para explorar</h2>
-
-            {/* Mostrar link para o próprio perfil se logado */}
-            {user && (
-              <Link href={`/author/${encodeURIComponent(user.username)}`}>
-                <Button variant="outline" size="sm">
-                  <User className="w-4 h-4 mr-2" />
-                  Meu Perfil Público
-                </Button>
-              </Link>
-            )}
           </div>
 
           <Suspense fallback={<div className="text-center py-8">Carregando autores...</div>}>
@@ -114,20 +103,7 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="col-span-2 text-center py-8 text-slate-500">
-                  <p>Nenhum autor encontrado. Comece adicionando conteúdo no painel de administração.</p>
-                  {user ? (
-                    <Link href="/admin">
-                      <Button variant="outline" className="mt-4">
-                        Ir para o Admin
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link href="/auth/login">
-                      <Button variant="outline" className="mt-4">
-                        Fazer Login
-                      </Button>
-                    </Link>
-                  )}
+                  <p>Nenhum autor encontrado.</p>
                 </div>
               )}
             </div>

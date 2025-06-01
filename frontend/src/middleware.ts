@@ -3,8 +3,6 @@ import jwt from "jsonwebtoken"
 
 const JWT_SECRET = "uma_chave_super_secreta"
 
-const protectedRoutes = ["/admin"]
-
 const authRoutes = ["/auth/login", "/auth/register"]
 
 export function middleware(request: NextRequest) {
@@ -33,8 +31,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Redirecionar usuários não autenticados de rotas protegidas
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !isAuthenticated) {
+  // Redirecionar usuários não autenticados de qualquer rota que não seja de auth
+  if (!pathname.startsWith("/auth") && !isAuthenticated) {
     const loginUrl = new URL("/auth/login", request.url)
     loginUrl.searchParams.set("redirect", pathname)
     return NextResponse.redirect(loginUrl)

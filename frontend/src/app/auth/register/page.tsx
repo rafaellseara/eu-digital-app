@@ -45,7 +45,7 @@ export default function RegisterPage() {
     const result = await register(username, email, password)
 
     if (result.success) {
-      router.push("/admin")
+      router.push("/")
     } else {
       setError(result.error || "Erro no registro")
     }
@@ -58,7 +58,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Criar Conta</CardTitle>
-          <p className="text-slate-600">Registre-se para criar seu diário digital</p>
+          <p className="text-slate-600">Registe-se para criar seu diário digital</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
@@ -131,7 +131,6 @@ export default function RegisterPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Registrando...
                 </>
               ) : (
                 "Criar Conta"
@@ -142,13 +141,10 @@ export default function RegisterPage() {
           <div className="text-center space-y-2">
             <p className="text-sm text-slate-600">
               Já tem conta?{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:underline">
+              <Link href="/auth/login" className="text-black font-semibold hover:underline">
                 Fazer login
               </Link>
             </p>
-            <Link href="/" className="text-sm text-slate-600 hover:text-slate-800 block">
-              ← Voltar ao site público
-            </Link>
           </div>
         </CardContent>
       </Card>
