@@ -15,46 +15,46 @@ afterAll(async () => {
   await mongod.stop();
 });
 
-describe('SportResults API', () => {
+describe('Files API', () => {
   let createdId;
 
-  it('POST  /api/sportResults → deve criar um resultado desportivo', async () => {
+  it('POST  /api/files → deve criar um ficheiro', async () => {
     const res = await request(app)
-      .post('/api/sportResults')
+      .post('/api/files')
       .send({
-        id:           '44444444-4444-4444-8444-444444444444',
+        id:           '55555555-5555-5555-8555-555555555555',
         author:       'tester',
-        activity:     'running',
-        value:        5.2,
-        unit:         'km',
-        activityDate: '2025-05-05T08:00:00Z'
+        originalName: 'doc.pdf',
+        size:         12345,
+        format:       'pdf',
+        description:  'Test doc'
       })
       .expect(201);
-    expect(res.body).toHaveProperty('activity', 'running');
+    expect(res.body).toHaveProperty('originalName', 'doc.pdf');
     createdId = res.body.id;
   });
 
-  it('GET   /api/sportResults → deve listar resultados desportivos', async () => {
-    const res = await request(app).get('/api/sportResults').expect(200);
+  it('GET   /api/files → deve listar ficheiros', async () => {
+    const res = await request(app).get('/api/files').expect(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThan(0);
   });
 
-  it('GET   /api/sportResults/:id → deve retornar o resultado criado', async () => {
-    const res = await request(app).get(`/api/sportResults/${createdId}`).expect(200);
-    expect(res.body).toHaveProperty('unit', 'km');
+  it('GET   /api/files/:id → deve retornar o ficheiro criado', async () => {
+    const res = await request(app).get(`/api/files/${createdId}`).expect(200);
+    expect(res.body).toHaveProperty('format', 'pdf');
   });
 
-  it('PUT   /api/sportResults/:id → deve atualizar o resultado', async () => {
+  it('PUT   /api/files/:id → deve atualizar o ficheiro', async () => {
     const res = await request(app)
-      .put(`/api/sportResults/${createdId}`)
-      .send({ value: 6.0 })
+      .put(`/api/files/${createdId}`)
+      .send({ description: 'Updated doc' })
       .expect(200);
-    expect(res.body).toHaveProperty('value', 6.0);
+    expect(res.body).toHaveProperty('description', 'Updated doc');
   });
 
-  it('DELETE /api/sportResults/:id → deve apagar o resultado', async () => {
-    await request(app).delete(`/api/sportResults/${createdId}`).expect(204);
-    await request(app).get(`/api/sportResults/${createdId}`).expect(404);
+  it('DELETE /api/files/:id → deve apagar o ficheiro', async () => {
+    await request(app).delete(`/api/files/${createdId}`).expect(204);
+    await request(app).get(`/api/files/${createdId}`).expect(404);
   });
 });

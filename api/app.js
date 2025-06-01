@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('../docs/openapi.yaml');
+const authRouter = require('./routes/auth');
 require('dotenv').config();
 
 const app = express();
@@ -26,6 +27,8 @@ app.use('/api/files', require('./routes/files'));
 app.use('/api/events', require('./routes/events'));
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use('/api/auth', authRouter);
 
 module.exports = app;
 

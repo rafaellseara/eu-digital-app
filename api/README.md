@@ -76,7 +76,7 @@ npm test
 A especificação OpenAPI (Swagger) está em `api/docs/openapi.yaml`. Para aceder ao UI:
 
 ```
-http://localhost:3000/api/docs
+http://localhost:3000/api/docs 
 ```
 
 ---

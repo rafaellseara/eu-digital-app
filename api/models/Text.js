@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const TextSchema = new Schema({
     id:           { type: String, required: true, unique: true },
     createdAt:    { type: Date,   required: true, default: Date.now },
+    ownerId:      { type: String, required: true },
     author:       { type: String, required: true },
     type:         { type: String, required: true, default: 'Text' },
     visibility:   { type: String, enum: ['public','friends','private'], default: 'private' },
