@@ -1,5 +1,4 @@
-// /api/services/ingestService.js
-
+// api/services/ingestService.js
 const fs = require('fs');
 const path = require('path');
 const unzipper = require('unzipper');
@@ -15,8 +14,8 @@ const Photo = require('../models/Photo');
 const Text = require('../models/Text');
 const AcademicResult = require('../models/AcademicResult');
 const SportResult = require('../models/SportResult');
-const File = require('../models/File');
-const Event = require('../models/Event');
+const FileItem = require('../models/File');
+const EventItem = require('../models/Event');
 
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
@@ -24,16 +23,17 @@ const validate = ajv.compile(manifestSchema);
 
 /**
  * Main entry: process a SIP ZIP package
- * @param {string} zipPath - Path to the uploaded ZIP file
- * @returns {Promise<Array<string>>} - List of created item IDs
+ * @param {string} zipPath   - Path to the uploaded ZIP file
+ * @param {string} ownerId   - ID do utilizador que fez upload
+ * @returns {Promise<Array<string>>} - Lista de IDs dos itens criados
  */
-async function processSip(zipPath) {
+async function processSip(zipPath, ownerId) {
   const tempDir = await unzipSip(zipPath);
   let createdIds;
   try {
     const manifest = await loadManifest(tempDir);
     validateManifest(manifest);
-    createdIds = await storeItems(manifest, tempDir);
+    createdIds = await storeItems(manifest, tempDir, ownerId);
   } finally {
     await cleanup(zipPath, tempDir);
   }
@@ -76,8 +76,11 @@ function validateManifest(manifest) {
 
 /**
  * Copy each SIP item into storage and insert its metadata into MongoDB
+ * @param {Object} manifest
+ * @param {string} tempDir
+ * @param {string} ownerId
  */
-async function storeItems(manifest, tempDir) {
+async function storeItems(manifest, tempDir, ownerId) {
   const created = [];
 
   for (const item of manifest.items) {
@@ -90,10 +93,11 @@ async function storeItems(manifest, tempDir) {
     const dest = path.join(destDir, `${id}${ext}`);
     await fs.promises.copyFile(src, dest);
 
-    // Prepare common fields
+    // Prepare common fields, incluindo ownerId
     const doc = {
       id,
       createdAt: new Date(manifest.createdAt),
+      ownerId,
       author: manifest.author,
       type,
       visibility: metadata.visibility || 'private',
@@ -117,10 +121,10 @@ async function storeItems(manifest, tempDir) {
         await SportResult.create(doc);
         break;
       case 'File':
-        await File.create(doc);
+        await FileItem.create(doc);
         break;
       case 'Event':
-        await Event.create(doc);
+        await EventItem.create(doc);
         break;
       default:
         console.warn(`Unknown type: ${type}`);

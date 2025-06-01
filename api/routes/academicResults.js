@@ -1,19 +1,32 @@
-// /api/routes/academicResults.js
+// api/routes/academicResults.js
 const express = require('express');
 const router = express.Router();
 const AcademicResult = require('../models/AcademicResult');
+const User = require('../models/User');
+const { authenticate, authenticateOptional } = require('../middleware/auth');
 
-// GET    /api/academicResults
-router.get('/', async (req, res) => {
+// Listar resultados académicos
+// GET /api/academicResults
+router.get('/', authenticateOptional, async (req, res) => {
   const { page = 1, limit = 20, institution, author } = req.query;
   const filter = {};
+
+  if (!req.user) {
+    filter.visibility = 'public';
+  } else {
+    filter.$or = [
+      { visibility: 'public' },
+      { ownerId: req.user.id },
+      { $and: [{ visibility: 'friends' }, { ownerId: { $in: req.user.friends || [] } }] }
+    ];
+  }
   if (institution) filter.institution = institution;
-  if (author)      filter.author = author;
+  if (author) filter.author = author;
+
   try {
-    const items = await AcademicResult
-      .find(filter)
+    const items = await AcademicResult.find(filter)
       .sort({ createdAt: -1 })
-      .skip((page-1)*limit)
+      .skip((page - 1) * limit)
       .limit(Number(limit));
     res.json(items);
   } catch (err) {
@@ -21,48 +34,83 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST   /api/academicResults
-router.post('/', async (req, res) => {
+// Criar resultado académico (só autenticados)
+// POST /api/academicResults
+router.post('/', authenticate, async (req, res) => {
   try {
-    const item = await AcademicResult.create(req.body);
+    const data = {
+      ...req.body,
+      ownerId: req.user.id,
+      author: req.user.username
+    };
+    const item = await AcademicResult.create(data);
     res.status(201).json(item);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// GET    /api/academicResults/:id
-router.get('/:id', async (req, res) => {
+// Obter resultado por ID com verificação de visibilidade
+// GET /api/academicResults/:id
+router.get('/:id', authenticateOptional, async (req, res) => {
   try {
     const item = await AcademicResult.findOne({ id: req.params.id });
     if (!item) return res.status(404).json({ error: 'Not found' });
-    res.json(item);
+
+    const { visibility, ownerId } = item;
+    if (visibility === 'public') {
+      return res.json(item);
+    }
+    if (!req.user) {
+      return res.status(403).json({ error: 'Requer autenticação para ver este recurso.' });
+    }
+    if (visibility === 'private' && ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
+    if (visibility === 'friends') {
+      const owner = await User.findOne({ id: ownerId });
+      if (!owner || !(owner.friends || []).includes(req.user.id)) {
+        return res.status(403).json({ error: 'Acesso apenas para amigos.' });
+      }
+    }
+    return res.json(item);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// PUT    /api/academicResults/:id
-router.put('/:id', async (req, res) => {
+// Atualizar resultado académico (apenas owner)
+// PUT /api/academicResults/:id
+router.put('/:id', authenticate, async (req, res) => {
   try {
-    const item = await AcademicResult.findOneAndUpdate(
+    const item = await AcademicResult.findOne({ id: req.params.id });
+    if (!item) return res.status(404).json({ error: 'Not found' });
+    if (item.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Só o criador pode atualizar.' });
+    }
+    const updates = { ...req.body };
+    delete updates.ownerId;
+    const updated = await AcademicResult.findOneAndUpdate(
       { id: req.params.id },
-      req.body,
+      updates,
       { new: true, runValidators: true }
     );
-    if (!item) return res.status(404).json({ error: 'Not found' });
-    res.json(item);
+    res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
+// Eliminar resultado académico (apenas owner)
 // DELETE /api/academicResults/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticate, async (req, res) => {
   try {
-    const result = await AcademicResult.deleteOne({ id: req.params.id });
-    if (result.deletedCount === 0) 
-      return res.status(404).json({ error: 'Not found' });
+    const item = await AcademicResult.findOne({ id: req.params.id });
+    if (!item) return res.status(404).json({ error: 'Not found' });
+    if (item.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Só o criador pode eliminar.' });
+    }
+    await AcademicResult.deleteOne({ id: req.params.id });
     res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
