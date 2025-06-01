@@ -75,7 +75,7 @@ function validateManifest(manifest) {
 }
 
 /**
- * Copy each SIP item into storage and insert its metadata into MongoDB
+ * Insert each SIP item into MongoDB, lendo imagens em buffer
  * @param {Object} manifest
  * @param {string} tempDir
  * @param {string} ownerId
@@ -86,12 +86,7 @@ async function storeItems(manifest, tempDir, ownerId) {
   for (const item of manifest.items) {
     const { type, path: relPath, metadata } = item;
     const src = path.join(tempDir, 'data', relPath);
-    const destDir = determineStorageDir(type, manifest.createdAt);
-    await fs.promises.mkdir(destDir, { recursive: true });
-    const ext = path.extname(relPath);
     const id = uuidv4();
-    const dest = path.join(destDir, `${id}${ext}`);
-    await fs.promises.copyFile(src, dest);
 
     // Prepare common fields, incluindo ownerId
     const doc = {
@@ -106,11 +101,18 @@ async function storeItems(manifest, tempDir, ownerId) {
     // Merge specific metadata
     Object.assign(doc, metadata);
 
-    // Insert into the correct collection
     switch (type) {
-      case 'Photo':
+      case 'Photo': {
+        // Lê o ficheiro como Buffer
+        const buffer = await fs.promises.readFile(src);
+        // Determina formato (ex: 'jpeg') ou usa metadata.format
+        const format = metadata.format || path.extname(relPath).substring(1);
+        doc.format = format;
+        doc.caption = metadata.caption || '';
+        doc.data = buffer; // Campo Buffer com binário da imagem
         await Photo.create(doc);
         break;
+      }
       case 'Text':
         await Text.create(doc);
         break;
@@ -138,6 +140,7 @@ async function storeItems(manifest, tempDir, ownerId) {
 
 /**
  * Determine storage directory based on type and date
+ * (Não usado para Photo, mas mantido para compatibilidade)
  */
 function determineStorageDir(type, createdAt) {
   const date = new Date(createdAt);

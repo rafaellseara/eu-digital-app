@@ -13,7 +13,8 @@ const PhotoSchema = new Schema({
   resolution:   { width: Number, height: Number },
   format:       { type: String },
   location:     { lat: Number, lon: Number, description: String },
-  caption:      { type: String }
+  caption:      { type: String },
+  data:         { type: Buffer, required: true },
 });
 
 PhotoSchema.index({ createdAt: -1 });

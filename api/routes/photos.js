@@ -1,9 +1,14 @@
 // api/routes/photos.js
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const Photo = require('../models/Photo');
 const User = require('../models/User');
 const { authenticate, authenticateOptional } = require('../middleware/auth');
+
+// Configura multer para guardar em memória
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // Listar fotos com paginação e filtros, respeitando visibilidade
 // GET /api/photos
@@ -35,13 +40,26 @@ router.get('/', authenticateOptional, async (req, res) => {
 });
 
 // Criar foto (só utilizadores autenticados)
-// POST /api/photos
-router.post('/', authenticate, async (req, res) => {
+// POST /api/photos (campo "image" contém o ficheiro binário)
+router.post('/', authenticate, upload.single('image'), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Ficheiro de imagem obrigatório.' });
+    }
+    const imgBuffer = req.file.buffer;
+    const mime = req.file.mimetype; // ex: 'image/jpeg'
+    const format = mime.split('/')[1]; // ex: 'jpeg'
+
     const data = {
-      ...req.body,
+      id: req.body.id,
       ownerId: req.user.id,
-      author: req.user.username
+      author: req.user.username,
+      type: 'Photo',
+      visibility: req.body.visibility || 'private',
+      tags: req.body.tags || [],
+      caption: req.body.caption || '',
+      format,
+      data: imgBuffer
     };
     const photo = await Photo.create(data);
     res.status(201).json(photo);
@@ -51,15 +69,16 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // Obter foto por ID com verificação de visibilidade
-// GET /api/photos/:id
+// GET /api/photos/:id (retorna binário da imagem se acesso permitido)
 router.get('/:id', authenticateOptional, async (req, res) => {
   try {
     const photo = await Photo.findOne({ id: req.params.id });
     if (!photo) return res.status(404).json({ error: 'Not found' });
 
-    const { visibility, ownerId } = photo;
+    const { visibility, ownerId, format, data: imgBuffer } = photo;
     if (visibility === 'public') {
-      return res.json(photo);
+      res.set('Content-Type', `image/${format}`);
+      return res.send(imgBuffer);
     }
     if (!req.user) {
       return res.status(403).json({ error: 'Requer autenticação para ver este recurso.' });
@@ -73,7 +92,8 @@ router.get('/:id', authenticateOptional, async (req, res) => {
         return res.status(403).json({ error: 'Acesso apenas para amigos.' });
       }
     }
-    return res.json(photo);
+    res.set('Content-Type', `image/${format}`);
+    return res.send(imgBuffer);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -90,6 +110,7 @@ router.put('/:id', authenticate, async (req, res) => {
     }
     const updates = { ...req.body };
     delete updates.ownerId;
+    // Não atualiza 'data' neste endpoint. Se quiseres atualizar a imagem, cria endpoint separado com multer.
     const updated = await Photo.findOneAndUpdate(
       { id: req.params.id },
       updates,
