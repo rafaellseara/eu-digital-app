@@ -59,6 +59,56 @@ npm start
 
 ---
 
+## 🛡  Autenticação & Autorização
+
+### Registo de utilizador
+
+- Endpoint: `POST /api/auth/register`
+
+- Body (JSON):
+   ```json
+   {
+   "username": "seuUsuario",
+   "email": "seuemail@exemplo.com",
+   "password": "suaSenha"
+   }
+   ```
+
+- Responde com `{ user: { id, username, email }, token }`.
+
+- Gera um **JWT** usando `JWT_SECRET`.
+
+### Login de utilizador
+
+- Endpoint: `POST /api/auth/login`
+
+- Body (JSON):
+   ```json
+   {
+   "emailOrUsername": "seuUsuarioOuEmail",
+   "password": "suaSenha"
+   }
+   ```
+
+- Responde com `{ user: { id, username, email }, token }`.
+
+- `token` deve ser incluído no header `Authorization: Bearer <token>` em requisições protegidas.
+
+### Proteção de rotas
+
+- Os endpoints de criação, atualização e eliminação (`POST`, `PUT`, `DELETE`) exigem autenticação com JWT.
+
+- Os endpoints de listagem e consulta de recursos (`GET`) aplicam regras de visibilidade:
+  - **public**: qualquer um (sem token) vê.
+  - **friends**: apenas utilizadores autenticados que constem na lista de amigos do dono.
+  - **private**: apenas o próprio dono (ownerId) vê.
+
+- Middleware `authenticate` verifica o token e anexa `req.user`.
+
+- Middleware `authenticateOptional` tenta verificar token, mas permite acesso público caso não haja.
+
+---
+
 ## ✅ Running Tests
 
 Testes de integração com Jest + Supertest + MongoDB in-memory:
@@ -88,6 +138,7 @@ eu-digital-app/
 ├── api/
 │   ├── app.js             # Configura Express e rotas
 │   ├── server.js          # Inicializa o listener
+|   ├── middleware/        # Autenticação JWT
 │   ├── routes/            # Routers CRUD (photos, texts, …)
 │   ├── services/          # IngestService (unzip, valida, store)
 │   ├── models/            # Schemas Mongoose
@@ -107,53 +158,37 @@ eu-digital-app/
 
 ## 🔧 Componentes Criados
 
-1. **Ingest Service** (`services/ingestService.js`)
+1. **User Model & Auth** (`models/User.js`, `routes/auth.js`, `middleware/auth.js`)
+
+   * `User` schema Mongoose com `username`, `email`, `passwordHash` e lista `friends`.
+   * Endpoints de register e login geram JWT.
+   * Middleware para verificar token e permitir acesso condicional.
+
+2. **Ingest Service** (`services/ingestService.js`)
 
    * Recebe ZIP, descompacta, valida manifesto JSON, copia ficheiros e insere documentos no Mongo.
    * Limpeza automática de ZIP e pasta temporária.
 
-2. **Data Models** (`models/*.js`)
+3. **Data Models** (`models/*.js`)
 
    * Schemas Mongoose para cada tipo de item.
    * Índices otimizados (`createdAt`, `tags`, etc.).
 
-3. **Routers CRUD** (`routes/*.js`)
+4. **Routers CRUD** (`routes/*.js`)
 
    * Endpoints `GET|POST|PUT|DELETE` para todos os recursos.
    * Paginação, filtros por query params.
 
-4. **Documentação** (`docs/openapi.yaml`)
+5. **Documentação** (`docs/openapi.yaml`)
 
    * Especificação completa OpenAPI 3.0.
    * Swagger UI integrado via `swagger-ui-express`.
 
-5. **Testes Automatizados** (`tests/*.test.js`)
+6. **Testes Automatizados** (`tests/*.test.js`)
 
    * Suites Jest + Supertest cobrindo todos os endpoints.
    * MongoDB in-memory para isolamento total.
 
-6. **Docker Setup** (`docker/docker-compose.yml`)
+7. **Docker Setup** (`docker/docker-compose.yml`)
 
    * MongoDB 6.0 e Mongo Express para administração via UI.
-
----
-
-## 🧐 Completeness & Next Steps
-
-**Status atual**: A API fornece todas as funcionalidades centrais pedidas no enunciado:
-
-* Ingestão de pacotes SIP.
-* CRUD completo para fotos, textos, resultados académicos, resultados desportivos, ficheiros e eventos.
-* Documentação e testes.
-
-**Possíveis acréscimos futuros**:
-
-* **Autenticação & Autorização** (ex: JWT, OAuth) para proteger endpoints.
-* **Gestão de utilizadores** e roles (produtor, administrador, consumidor).
-* **Paginação avançada** (metadata, total de páginas, links HATEOAS).
-* **Versionamento de itens** ou *rollback* de metadados.
-* **Monitorização** (logs estruturados, métricas, healthchecks).
-* **Cache** e *rate limiting* para performance e segurança.
-
-Em suma, a **base** da API está **completa** para o projecto, mas há múltiplas melhorias e features que podem ser implementadas.
-
