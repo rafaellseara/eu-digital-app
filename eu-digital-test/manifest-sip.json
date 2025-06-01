@@ -1,18 +1,18 @@
 {
-    "id": "123e4567-e89b-12d3-a456-426614174000",
-    "author": "test-user",
-    "createdAt": "2025-05-06T12:00:00Z",
-    "items": [
-      {
-        "type": "File",
-        "path": "hello.txt",
-        "metadata": {
-          "originalName": "hello.txt",
-          "size": 0,
-          "format": "txt",
-          "description": "Dummy file for testing"
-        }
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "author": "test-user",
+  "createdAt": "2025-05-06T12:00:00Z",
+  "items": [
+    {
+      "type": "File",
+      "path": "hello.txt",
+      "metadata": {
+        "originalName": "hello.txt",
+        "size": 0,
+        "format": "txt",
+        "description": "Dummy file for testing"
       }
-    ]
-  }
+    }
+  ]
+}
   
