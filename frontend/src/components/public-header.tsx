@@ -2,14 +2,25 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Search, Calendar, Tag, Home } from "lucide-react"
+import { Search, Calendar, Tag, Home, User, LogOut } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/lib/auth"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface PublicHeaderProps {
   currentAuthor?: string
 }
 
 export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
+  const { user, logout } = useAuth()
+
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -34,6 +45,13 @@ export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
                     <span>Timeline</span>
                   </Link>
                   <Link
+                    href={`/author/${encodeURIComponent(currentAuthor)}/photos`}
+                    className="flex items-center space-x-1 text-slate-600 hover:text-slate-800"
+                  >
+                    <span>📸</span>
+                    <span>Fotos</span>
+                  </Link>
+                  <Link
                     href={`/author/${encodeURIComponent(currentAuthor)}/categories`}
                     className="flex items-center space-x-1 text-slate-600 hover:text-slate-800"
                   >
@@ -53,11 +71,49 @@ export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
               </div>
             </div>
 
-            <Link href="/admin">
-              <Button variant="outline" size="sm">
-                Admin
-              </Button>
-            </Link>
+            {/* Menu do usuário se estiver logado */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{user.username}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin" className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Painel Admin
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/author/${encodeURIComponent(user.username)}`} className="flex items-center">
+                      <User className="w-4 h-4 mr-2" />
+                      Meu Perfil Público
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="flex items-center text-red-600">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/auth/login">
+                  <Button variant="outline" size="sm">
+                    Entrar
+                  </Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button size="sm">Registrar</Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
