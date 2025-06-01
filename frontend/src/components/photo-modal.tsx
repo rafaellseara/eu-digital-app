@@ -14,7 +14,6 @@ export function PhotoModal({ open, onClose, src, alt }: PhotoModalProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTitle>
-        {alt || "Visualizar Foto"}
       </DialogTitle>
       <DialogContent className="max-w-4xl p-0 overflow-hidden">
         <img src={src} alt={alt || "Photo"} className="w-full h-auto object-contain" />

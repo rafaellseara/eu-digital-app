@@ -28,8 +28,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const checkAuth = async () => {
+    const token = sessionStorage.getItem("auth-token")
+    if (!token) {
+      setLoading(false)
+      return
+    }
+  
     try {
-      const response = await fetch("/api/auth/me")
+      const response = await fetch("/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
@@ -54,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json()
 
       if (response.ok) {
+        sessionStorage.setItem("auth-token", data.token)
         setUser(data.user)
         return { success: true }
       } else {
@@ -91,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
+      sessionStorage.removeItem("auth-token")
       setUser(null)
       window.location.href = "/"
     } catch (error) {

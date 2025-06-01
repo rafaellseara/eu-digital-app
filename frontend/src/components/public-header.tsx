@@ -25,42 +25,10 @@ export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-8">
             <Link href="/" className="text-xl font-bold text-slate-800">
               📖 Eu Digital
             </Link>
-
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="flex items-center space-x-1 text-slate-600 hover:text-slate-800">
-                <Home className="w-4 h-4" />
-                <span>Início</span>
-              </Link>
-              {currentAuthor && (
-                <>
-                  <Link
-                    href={`/author/${encodeURIComponent(currentAuthor)}`}
-                    className="flex items-center space-x-1 text-slate-600 hover:text-slate-800"
-                  >
-                    <Calendar className="w-4 h-4" />
-                    <span>Timeline</span>
-                  </Link>
-                  <Link
-                    href={`/author/${encodeURIComponent(currentAuthor)}/photos`}
-                    className="flex items-center space-x-1 text-slate-600 hover:text-slate-800"
-                  >
-                    <span>📸</span>
-                    <span>Fotos</span>
-                  </Link>
-                  <Link
-                    href={`/author/${encodeURIComponent(currentAuthor)}/categories`}
-                    className="flex items-center space-x-1 text-slate-600 hover:text-slate-800"
-                  >
-                    <Tag className="w-4 h-4" />
-                    <span>Categorias</span>
-                  </Link>
-                </>
-              )}
-            </nav>
           </div>
 
           <div className="flex items-center space-x-4">

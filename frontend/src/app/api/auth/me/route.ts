@@ -5,13 +5,13 @@ const JWT_SECRET = "uma_chave_super_secreta"
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get("auth-token")?.value
-
+    const authHeader = request.headers.get("authorization")
+    const token = authHeader?.split(" ")[1]
+    
     if (!token) {
       return NextResponse.json({ error: "Token não encontrado" }, { status: 401 })
     }
-
-    // Verificar e decodificar o token
+    
     const decoded = jwt.verify(token, JWT_SECRET) as any
 
     return NextResponse.json({

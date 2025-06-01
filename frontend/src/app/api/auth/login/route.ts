@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ emailOrUsername, password }),
+      credentials: "include"
     })
 
     const data = await response.json()
@@ -29,16 +30,8 @@ export async function POST(request: NextRequest) {
     // Criar resposta com cookie seguro
     const nextResponse = NextResponse.json({
       user: data.user,
+      token: data.token,
       message: "Login realizado com sucesso",
-    })
-
-    // Definir cookie com o token
-    nextResponse.cookies.set("auth-token", data.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 dias
-      path: "/",
     })
 
     return nextResponse
