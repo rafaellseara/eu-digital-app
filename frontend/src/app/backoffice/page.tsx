@@ -35,13 +35,13 @@ export default function BackofficePage() {
             <p className="text-slate-600">Faça a gestão do seu conteúdo pessoal e configure a sua visibilidade</p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="xl:col-span-1 space-y-6">
               <UserProfileCard showAdminActions={false} />
               <ContentCreator author={user?.username || ""} />
             </div>
 
-            <div className="xl:col-span-3">
+            <div className="xl:col-span-2">
               <Suspense fallback={<div className="text-center py-8">Carregando...</div>}>
                 <TimelineView items={items} isPublic={false} />
               </Suspense>

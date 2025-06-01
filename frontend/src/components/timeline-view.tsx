@@ -246,8 +246,8 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
         <h3 className="text-xl font-medium text-slate-800 mb-2">Nenhum conteúdo encontrado</h3>
         <p className="text-slate-600">
           {isPublic
-            ? "Este usuário ainda não compartilhou nenhum conteúdo público."
-            : "Comece adicionando seu primeiro conteúdo usando o formulário ao lado."}
+            ? "Este autor ainda não compartilhou nenhum conteúdo público."
+            : "Comece por adicionar o seu primeiro item utilizando o formulário ao lado."}
         </p>
       </div>
     )

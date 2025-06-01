@@ -77,36 +77,42 @@ export function getItemType(item: TimelineItem): string {
 // Funções para buscar dados da API
 const API_BASE = "http://localhost:3000/api"
 
-export async function fetchTimelineItems(author?: string, visibility?: string, tag?: string): Promise<TimelineItem[]> {
-  // Buscar todos os tipos de conteúdo e combinar em uma única timeline
+function getAuthHeaders(token: string = ""): HeadersInit {
+  if (token) {
+    return {
+      Authorization: `Bearer ${token}`,
+    }
+  }
+  return {}
+}
+
+export async function fetchTimelineItems(author?: string, visibility?: string, tag?: string, token: string = ""): Promise<TimelineItem[]> {
   const [photos, texts, academicResults, sportResults, files, events] = await Promise.all([
-    fetchPhotos(author, tag),
-    fetchTexts(author, tag),
-    fetchAcademicResults(author),
-    fetchSportResults(author),
-    fetchFiles(author),
-    fetchEvents(author),
+    fetchPhotos(author, tag, token),
+    fetchTexts(author, tag, token),
+    fetchAcademicResults(author, token),
+    fetchSportResults(author, token),
+    fetchFiles(author, token),
+    fetchEvents(author, token),
   ])
 
-  console.log(files)
-
-  // Combinar todos os itens em uma única array
   const allItems: TimelineItem[] = [...photos, ...texts, ...academicResults, ...sportResults, ...files, ...events]
-
-  // Filtrar por visibilidade se necessário
   const filteredItems = visibility ? allItems.filter((item) => item.visibility === visibility) : allItems
 
-  // Ordenar por data de criação (mais recente primeiro)
   return filteredItems.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }
 
-export async function fetchPhotos(author?: string, tag?: string): Promise<Photo[]> {
+export async function fetchPhotos(author?: string, tag?: string, token: string = ""): Promise<Photo[]> {
   let url = `${API_BASE}/photos?`
   if (author) url += `author=${encodeURIComponent(author)}&`
   if (tag) url += `tag=${encodeURIComponent(tag)}&`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(token),
+      },
+    })
     if (!response.ok) throw new Error("Failed to fetch photos")
     return await response.json()
   } catch (error) {
@@ -115,13 +121,17 @@ export async function fetchPhotos(author?: string, tag?: string): Promise<Photo[
   }
 }
 
-export async function fetchTexts(author?: string, tag?: string): Promise<Text[]> {
+export async function fetchTexts(author?: string, tag?: string, token: string = ""): Promise<Text[]> {
   let url = `${API_BASE}/texts?`
   if (author) url += `author=${encodeURIComponent(author)}&`
   if (tag) url += `tag=${encodeURIComponent(tag)}&`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(token),
+      }
+    })
     if (!response.ok) throw new Error("Failed to fetch texts")
     return await response.json()
   } catch (error) {
@@ -130,12 +140,16 @@ export async function fetchTexts(author?: string, tag?: string): Promise<Text[]>
   }
 }
 
-export async function fetchAcademicResults(author?: string): Promise<AcademicResult[]> {
+export async function fetchAcademicResults(author?: string, token: string = ""): Promise<AcademicResult[]> {
   let url = `${API_BASE}/academicResults?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(token),
+      }
+    })
     if (!response.ok) throw new Error("Failed to fetch academic results")
     return await response.json()
   } catch (error) {
@@ -144,12 +158,16 @@ export async function fetchAcademicResults(author?: string): Promise<AcademicRes
   }
 }
 
-export async function fetchSportResults(author?: string): Promise<SportResult[]> {
+export async function fetchSportResults(author?: string, token: string = ""): Promise<SportResult[]> {
   let url = `${API_BASE}/sportResults?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(token),
+      }
+    })
     if (!response.ok) throw new Error("Failed to fetch sport results")
     return await response.json()
   } catch (error) {
@@ -158,12 +176,16 @@ export async function fetchSportResults(author?: string): Promise<SportResult[]>
   }
 }
 
-export async function fetchFiles(author?: string): Promise<FileItem[]> {
+export async function fetchFiles(author?: string, token: string = ""): Promise<FileItem[]> {
   let url = `${API_BASE}/files?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(token),
+      }
+    })
     if (!response.ok) throw new Error("Failed to fetch files")
     return await response.json()
   } catch (error) {
@@ -172,12 +194,16 @@ export async function fetchFiles(author?: string): Promise<FileItem[]> {
   }
 }
 
-export async function fetchEvents(author?: string): Promise<Event[]> {
+export async function fetchEvents(author?: string, token: string = ""): Promise<Event[]> {
   let url = `${API_BASE}/events?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(token),
+      }
+    })
     if (!response.ok) throw new Error("Failed to fetch events")
     return await response.json()
   } catch (error) {
@@ -186,11 +212,12 @@ export async function fetchEvents(author?: string): Promise<Event[]> {
   }
 }
 
-// Função para buscar todos os autores disponíveis (simulada, já que a API não tem um endpoint específico para isso)
-export async function fetchAuthors(): Promise<string[]> {
+export async function fetchAuthors(token: string = ""): Promise<string[]> {
   try {
-    // Buscar alguns itens e extrair autores únicos
-    const [photos, texts] = await Promise.all([fetchPhotos(), fetchTexts()])
+    const [photos, texts] = await Promise.all([
+      fetchPhotos(undefined, undefined, token),
+      fetchTexts(undefined, undefined, token),
+    ])
 
     const authors = new Set<string>()
     ;[...photos, ...texts].forEach((item) => {
@@ -204,8 +231,7 @@ export async function fetchAuthors(): Promise<string[]> {
   }
 }
 
-// Funções para criar novos itens
-export async function createItem(itemType: string, data: any): Promise<TimelineItem | null> {
+export async function createItem(itemType: string, data: any, token: string = ""): Promise<TimelineItem | null> {
   const endpoint = getEndpointForType(itemType)
   if (!endpoint) return null
 
@@ -214,6 +240,7 @@ export async function createItem(itemType: string, data: any): Promise<TimelineI
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...getAuthHeaders(token),
       },
       body: JSON.stringify(data),
     })
@@ -225,6 +252,7 @@ export async function createItem(itemType: string, data: any): Promise<TimelineI
     return null
   }
 }
+
 
 // Função auxiliar para obter o endpoint correto com base no tipo
 function getEndpointForType(itemType: string): string | null {
