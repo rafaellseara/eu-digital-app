@@ -20,8 +20,7 @@ interface AdminSidebarProps {
   items: TimelineItem[]
 }
 
-export function AdminSidebar({ items }: AdminSidebarProps) {
-  // Calcular estatísticas com base nos itens
+export function BackofficeSidebar({ items }: AdminSidebarProps) {
   const countByType = items.reduce(
     (acc, item) => {
       const type = item.type
@@ -45,23 +44,6 @@ export function AdminSidebar({ items }: AdminSidebarProps) {
 
   return (
     <aside className="w-80 bg-white border-r border-slate-200 p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Estatísticas</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {stats.map((stat) => (
-            <div key={stat.label} className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                <span className="text-sm text-slate-600">{stat.label}</span>
-              </div>
-              <Badge variant="secondary">{stat.value}</Badge>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Ações Rápidas</CardTitle>

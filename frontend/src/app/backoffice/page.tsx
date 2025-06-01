@@ -1,33 +1,44 @@
-import { Suspense } from "react"
+"use client"
+
+import { Suspense, useEffect, useState } from "react"
 import { fetchTimelineItems } from "@/lib/api"
-import { AdminHeader } from "@/components/admin-header"
+import { BackofficeHeader } from "@/components/backoffice-header"
 import { TimelineView } from "@/components/timeline-view"
 import { ContentCreator } from "@/components/content-creator"
-import { AdminSidebar } from "@/components/admin-sidebar"
+import { BackofficeSidebar } from "@/components/backoffice-sidebar"
 import { UserProfileCard } from "@/components/user-profile-card"
+import { useAuth } from "@/lib/auth"
 
-export default async function AdminPage() {
-  // Buscar todos os itens do usuário admin (públicos e privados)
-  // Nota: Em uma implementação real, você pegaria o username do usuário autenticado
-  const items = await fetchTimelineItems("admin")
+export default function BackofficePage() {
+  const [items, setItems] = useState<any[]>([])
+  const { user } = useAuth()
+
+  useEffect(() => {
+    const loadItems = async () => {
+      const fetchedItems = await fetchTimelineItems(user?.username || "", "private")
+      setItems(fetchedItems)
+    }
+    loadItems()
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <AdminHeader />
+      <BackofficeHeader />
 
       <div className="flex">
-        <AdminSidebar items={items} />
+        <BackofficeSidebar items={items} />
 
         <main className="flex-1 p-6">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Backoffice - Meu Diário</h1>
-            <p className="text-slate-600">Gerencie seu conteúdo pessoal e configure a visibilidade</p>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Eu Digital</h1>
+            <p className="text-slate-600">Faça a gestão do seu conteúdo pessoal e configure a sua visibilidade</p>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-1 space-y-6">
               <UserProfileCard showAdminActions={false} />
-              <ContentCreator author="admin" />
+              <ContentCreator author={user?.username || ""} />
             </div>
 
             <div className="xl:col-span-3">

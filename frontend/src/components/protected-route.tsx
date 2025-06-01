@@ -1,4 +1,3 @@
-// components/ProtectedRoute.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -21,7 +20,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       if (!user && !isPublic) {
         router.replace("/auth/login")
       } else if (user && isPublic) {
-        router.replace("/") // or wherever your home page is
+        router.replace("/")
       } else {
         setAllowed(true)
       }

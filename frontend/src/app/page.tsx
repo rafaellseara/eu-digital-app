@@ -50,7 +50,7 @@ export default function HomePage() {
               <p>
                 Bem-vindo de volta, <strong>{user.username}</strong>!
               </p>
-              <Link href="/admin">
+              <Link href="/backoffice">
                 <Button className="mt-6" size="sm">
                   <Plus className="w-4 h-4 mr-2" />
                   Adicionar novo item
