@@ -60,10 +60,8 @@ export interface Event extends BaseItem {
   eventType?: string
 }
 
-// Tipo unificado para timeline
 export type TimelineItem = Photo | Text | AcademicResult | SportResult | FileItem | Event
 
-// Função para determinar o tipo específico de item
 export function getItemType(item: TimelineItem): string {
   if ("caption" in item) return "photo"
   if ("content" in item) return "text"
@@ -74,7 +72,6 @@ export function getItemType(item: TimelineItem): string {
   return "unknown"
 }
 
-// Funções para buscar dados da API
 const API_BASE = "http://localhost:3000/api"
 
 function getAuthHeaders(token: string = ""): HeadersInit {
@@ -97,7 +94,7 @@ export async function fetchTimelineItems(author?: string, visibility?: string, t
   ])
 
   const allItems: TimelineItem[] = [...photos, ...texts, ...academicResults, ...sportResults, ...files, ...events]
-  const filteredItems = visibility ? allItems.filter((item) => item.visibility === visibility) : allItems
+  const filteredItems = visibility != "private" ? allItems.filter((item) => item.visibility === visibility) : allItems
 
   return filteredItems.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }

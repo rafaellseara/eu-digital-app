@@ -257,7 +257,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-slate-800">
-          {isPublic ? "Timeline Pública" : "Minha Timeline Completa"}
+          {isPublic ? "Timeline Pública" : "A Minha Timeline"}
         </h2>
         <div className="text-sm text-slate-500">
           {items.length} {items.length === 1 ? "item" : "itens"}

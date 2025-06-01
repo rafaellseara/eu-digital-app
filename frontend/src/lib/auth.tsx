@@ -22,7 +22,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Verificar se o usuário está autenticado ao carregar a página
   useEffect(() => {
     checkAuth()
   }, [])

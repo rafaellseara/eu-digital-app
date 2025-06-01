@@ -15,7 +15,7 @@ export default function BackofficePage() {
 
   useEffect(() => {
     const loadItems = async () => {
-      const fetchedItems = await fetchTimelineItems(user?.username || "", "private")
+      const fetchedItems = await fetchTimelineItems(user?.username || "", "private", undefined, sessionStorage.getItem("auth-token") || "")
       setItems(fetchedItems)
     }
     loadItems()
@@ -25,17 +25,15 @@ export default function BackofficePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <BackofficeHeader />
-
       <div className="flex">
         <BackofficeSidebar items={items} />
-
         <main className="flex-1 p-6">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Eu Digital</h1>
             <p className="text-slate-600">Faça a gestão do seu conteúdo pessoal e configure a sua visibilidade</p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-screen">
             <div className="xl:col-span-1 space-y-6">
               <UserProfileCard showAdminActions={false} />
               <ContentCreator author={user?.username || ""} />

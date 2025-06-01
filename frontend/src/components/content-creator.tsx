@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, X, MapPin, Tag, Calendar, Upload, ImageIcon, Activity, FileText, Users } from "lucide-react"
 import { createItem } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useRouter } from "next/navigation"
 
 interface ContentCreatorProps {
   author: string
@@ -50,6 +51,9 @@ export function ContentCreator({ author }: ContentCreatorProps) {
   const [isPublic, setIsPublic] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+
+  const router = useRouter()
+
 
   const contentTypes = [
     { value: "photo", label: "Fotografia", icon: "📸" },
@@ -193,14 +197,12 @@ export function ContentCreator({ author }: ContentCreatorProps) {
           break
       }
 
-      // Combinar dados base com específicos
       const itemData = {
         ...baseData,
         ...specificData,
       }
 
-      // Enviar para a API
-      const result = await createItem(contentType, itemData)
+      const result = await createItem(contentType, itemData, sessionStorage.getItem("auth-token") || "")
 
       if (result) {
         setSubmitMessage({
@@ -208,8 +210,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
           text: "Conteúdo criado com sucesso!",
         })
 
-        // Limpar formulário
-        resetForm()
+        router.refresh()
       } else {
         throw new Error("Falha ao criar conteúdo")
       }
@@ -455,7 +456,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
                     <SelectValue placeholder="Unidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="km">Quilômetros (km)</SelectItem>
+                    <SelectItem value="km">Quilómetros (km)</SelectItem>
                     <SelectItem value="m">Metros (m)</SelectItem>
                     <SelectItem value="min">Minutos (min)</SelectItem>
                     <SelectItem value="h">Horas (h)</SelectItem>
@@ -710,11 +711,11 @@ export function ContentCreator({ author }: ContentCreatorProps) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             <Label htmlFor="type">Tipo de Conteúdo</Label>
             <Select value={contentType} onValueChange={setContentType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo" />
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione o tipo" className="w-full"/>
               </SelectTrigger>
               <SelectContent>
                 {contentTypes.map((type) => (
@@ -729,10 +730,8 @@ export function ContentCreator({ author }: ContentCreatorProps) {
             </Select>
           </div>
 
-          {/* Campos específicos para o tipo de conteúdo selecionado */}
           {renderContentTypeFields()}
 
-          {/* Campos comuns para todos os tipos de conteúdo */}
           {contentType && (
             <>
               <div className="space-y-2">
