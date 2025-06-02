@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const { login } = useAuth()
+  const { login, googleLogin } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectUrl = searchParams.get("redirect") || "/"
@@ -32,7 +32,7 @@ export default function LoginPage() {
     const jwt = response.credential
     const payload = JSON.parse(atob(jwt.split(".")[1]))
   
-    console.log("Google email:", payload.email)
+    googleLogin(payload.email)
   }
 
   useEffect(() => {
@@ -74,10 +74,6 @@ export default function LoginPage() {
     }
 
     setIsLoading(false)
-  }
-
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login com ${provider}`)
   }
 
   return (

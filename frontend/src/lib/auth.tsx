@@ -14,6 +14,7 @@ interface AuthContextType {
   register: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   loading: boolean
+  googleLogin: (email: string) => Promise<{ success: boolean; error?: string }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -47,6 +48,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Erro ao verificar autenticação:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const googleLogin = async (email: string) => {
+    try {
+      const response = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        sessionStorage.setItem("auth-token", data.token)
+        setUser(data.user)
+        return { success: true }
+      } else {
+        return { success: false, error: data.error }
+      }
+    } catch (error) {
+      console.error("Erro no login:", error)
+      return { success: false, error: "Erro de conexão" }
     }
   }
 
@@ -109,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  return <AuthContext.Provider value={{ user, login, register, logout, loading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, login, register, logout, loading, googleLogin }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

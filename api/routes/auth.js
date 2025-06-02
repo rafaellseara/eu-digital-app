@@ -77,4 +77,30 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// LOGIN com Google: POST /api/auth/google
+router.post('/google', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'email é obrigatório.' });
+    }
+
+    // Procura pelo email ou pelo username
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(400).json({ error: 'Credenciais inválidas.' });
+    }
+
+    // Gera token JWT
+    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+      expiresIn: '7d'
+    });
+
+    res.json({ user: { id: user.id, username: user.username, email: user.email }, token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro no login.' });
+  }
+});
+
 module.exports = router;
