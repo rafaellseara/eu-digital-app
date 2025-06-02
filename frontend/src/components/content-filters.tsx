@@ -29,7 +29,6 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
     { id: "event", label: "Eventos", icon: "📅", count: 34 },
   ]
 
-  // Tags populares (em uma aplicação real, isso seria buscado da API)
   const popularTags = [
     "reflexão",
     "natureza",
@@ -44,37 +43,58 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
   ]
 
   const toggleType = (typeId: string) => {
-    setSelectedTypes((prev) => (prev.includes(typeId) ? prev.filter((id) => id !== typeId) : [...prev, typeId]))
+    let updatedTypes: string[]
+    if (selectedTypes.includes(typeId)) {
+      updatedTypes = selectedTypes.filter((id) => id !== typeId)
+    } else {
+      updatedTypes = [...selectedTypes, typeId]
+    }
+  
+    setSelectedTypes(updatedTypes)
+  
+    const params = new URLSearchParams()
+  
+    if (updatedTypes.length > 0) {
+      updatedTypes.forEach((type) => params.append("type", type))
+    }
+  
+    if (selectedTags.length > 0) {
+      params.set("tag", selectedTags[0]) // Only one tag allowed
+    }
+  
+    const base = author ? `/author/${encodeURIComponent(author)}` : pathname
+    const query = params.toString()
+    router.push(`${base}${query ? `?${query}` : ""}`)
   }
 
   const toggleTag = (tag: string) => {
-    // Se já estiver selecionada, remover
-    if (selectedTags.includes(tag)) {
-      setSelectedTags((prev) => prev.filter((t) => t !== tag))
-
-      // Se estamos em uma página de autor e esta era a tag selecionada, atualizar a URL
-      if (author && selectedTag === tag) {
-        router.push(`/author/${encodeURIComponent(author)}`)
-      }
+    let updatedTags: string[] = selectedTags.includes(tag)
+      ? selectedTags.filter((t) => t !== tag)
+      : [tag]
+  
+    setSelectedTags(updatedTags)
+  
+    const params = new URLSearchParams()
+  
+    if (selectedTypes.length > 0) {
+      selectedTypes.forEach((type) => params.append("type", type))
     }
-    // Caso contrário, adicionar e atualizar URL se estivermos em uma página de autor
-    else {
-      setSelectedTags([tag]) // Permitir apenas uma tag selecionada por vez
-
-      if (author) {
-        router.push(`/author/${encodeURIComponent(author)}?tag=${encodeURIComponent(tag)}`)
-      }
+  
+    if (updatedTags.length > 0) {
+      params.set("tag", updatedTags[0])
     }
+  
+    const base = author ? `/author/${encodeURIComponent(author)}` : pathname
+    const query = params.toString()
+    router.push(`${base}${query ? `?${query}` : ""}`)
   }
 
   const clearFilters = () => {
     setSelectedTypes([])
     setSelectedTags([])
-
-    // Se estamos em uma página de autor e há uma tag selecionada, limpar a URL
-    if (author && selectedTag) {
-      router.push(`/author/${encodeURIComponent(author)}`)
-    }
+  
+    const base = author ? `/author/${encodeURIComponent(author)}` : pathname
+    router.push(base)
   }
 
   return (
@@ -109,34 +129,8 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
                 <span className="text-lg">{type.icon}</span>
                 <span className="text-sm">{type.label}</span>
               </div>
-              <Badge variant="secondary" className="text-xs">
-                {type.count}
-              </Badge>
             </Button>
           ))}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Tag className="w-5 h-5" />
-            <span>Tags Populares</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {popularTags.map((tag) => (
-              <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? "default" : "outline"}
-                className="cursor-pointer hover:bg-slate-100"
-                onClick={() => toggleTag(tag)}
-              >
-                #{tag}
-              </Badge>
-            ))}
-          </div>
         </CardContent>
       </Card>
 

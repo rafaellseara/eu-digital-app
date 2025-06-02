@@ -12,18 +12,21 @@ export default async function AuthorPage({
   searchParams,
 }: {
   params: Promise<{ username: string }>
-  searchParams: Promise<{ tag?: string }>
+  searchParams: Promise<{ tag?: string, type?: string }>
 }) {
   const resolvedParams = await params
   const resolvedSearchParams = await searchParams
 
   const username = decodeURIComponent(resolvedParams.username)
   const tag = resolvedSearchParams?.tag
-  const items = await fetchTimelineItems(username, "public", tag)
+  const type = resolvedSearchParams?.type
+  var items = await fetchTimelineItems(username, "public", tag)
 
   if (items.length === 0) {
     notFound()
   }
+
+  items = items.filter(item => item.type == type || type === undefined)
 
   return (
     <div className="min-h-screen bg-slate-50/50">

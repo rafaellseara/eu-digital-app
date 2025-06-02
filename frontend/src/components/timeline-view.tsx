@@ -306,6 +306,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
 
         <div className="space-y-8">
           {items.map((item) => {
+            const visualItemType = getItemType(item)
             const itemType = getEndpointForType(getItemType(item))
             const commentCount = commentCounts[item.id] || 0
 
@@ -313,7 +314,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
               <div key={item.id} className="relative flex items-start space-x-4">
                 {/* Timeline dot */}
                 <div className="flex-shrink-0 w-16 h-16 bg-white border-4 border-slate-200 rounded-full flex items-center justify-center text-2xl shadow-sm select-none">
-                  {getTypeIcon(itemType)}
+                  {getTypeIcon(visualItemType)}
                 </div>
 
                 {/* Content card */}
@@ -322,7 +323,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <Badge className={getTypeColor(itemType) + " select-none"}>{itemType}</Badge>
+                          <Badge className={getTypeColor(visualItemType) + " select-none"}>{itemType}</Badge>
                           {!isPublic && (
                             <Badge variant={item.visibility === "public" ? "default" : "secondary"}>
                               {item.visibility === "public" ? (
