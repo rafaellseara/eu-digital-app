@@ -74,10 +74,6 @@ export function BackofficeSidebar({ items }: AdminSidebarProps) {
               <span className="text-slate-600">Itens privados</span>
               <Badge variant="secondary">{privateItems}</Badge>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Visualizações hoje</span>
-              <Badge variant="outline">24</Badge>
-            </div>
           </div>
         </CardContent>
       </Card>
