@@ -51,9 +51,10 @@ export function ContentCreator({ author }: ContentCreatorProps) {
   const [isPublic, setIsPublic] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const router = useRouter()
-
 
   const contentTypes = [
     { value: "photo", label: "Fotografia", icon: "📸" },
@@ -67,6 +68,50 @@ export function ContentCreator({ author }: ContentCreatorProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setSubmitMessage({
+          type: "error",
+          text: "Por favor, selecione apenas arquivos de imagem."
+        })
+        return
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setSubmitMessage({
+          type: "error",
+          text: "A imagem deve ter no máximo 5MB."
+        })
+        return
+      }
+
+      setSelectedImage(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+      
+      // Clear any previous error messages
+      setSubmitMessage(null)
+    }
+  }
+
+  const convertImageToBuffer = (file: File): Promise<ArrayBuffer> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as ArrayBuffer)
+      reader.onerror = reject
+      reader.readAsArrayBuffer(file)
+    })
   }
 
   const addTag = () => {
@@ -105,6 +150,8 @@ export function ContentCreator({ author }: ContentCreatorProps) {
     })
     setTags([])
     setIsPublic(false)
+    setSelectedImage(null)
+    setImagePreview(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,11 +186,18 @@ export function ContentCreator({ author }: ContentCreatorProps) {
           break
 
         case "photo":
+          if (!selectedImage) {
+            throw new Error("Por favor, selecione uma imagem.")
+          }
+
+          // Convert image to buffer
+          const imageBuffer = await convertImageToBuffer(selectedImage)
+          
           specificData = {
             caption: formData.caption,
-            format: "jpg",
+            format: selectedImage.type.split('/')[1], // Extract format from MIME type
             resolution: {
-              width: 1200,
+              width: 1200, // You might want to get actual dimensions
               height: 800,
             },
             location: formData.location
@@ -153,6 +207,9 @@ export function ContentCreator({ author }: ContentCreatorProps) {
                   description: formData.location,
                 }
               : undefined,
+            imageBuffer: Array.from(new Uint8Array(imageBuffer)), // Convert ArrayBuffer to number array
+            originalName: selectedImage.name,
+            size: selectedImage.size,
           }
           break
 
@@ -210,7 +267,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
           text: "Conteúdo criado com sucesso!",
         })
 
-        router.refresh()
+        router.push("/backoffice")
       } else {
         throw new Error("Falha ao criar conteúdo")
       }
@@ -218,7 +275,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
       console.error("Erro ao criar conteúdo:", error)
       setSubmitMessage({
         type: "error",
-        text: "Erro ao criar conteúdo. Tente novamente.",
+        text: error instanceof Error ? error.message : "Erro ao criar conteúdo. Tente novamente.",
       })
     } finally {
       setIsSubmitting(false)
@@ -253,11 +310,50 @@ export function ContentCreator({ author }: ContentCreatorProps) {
                 <Upload className="w-4 h-4" />
                 <span>Carregar Imagem</span>
               </Label>
-              <div className="border-2 border-dashed border-slate-200 rounded-md p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer">
-                <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
-                <p className="text-sm text-slate-500">Clique para selecionar ou arraste uma imagem</p>
-                <p className="text-xs text-slate-400 mt-1">JPG, PNG ou GIF até 5MB</p>
-                <Input id="photoUpload" type="file" accept="image/*" className="hidden" onChange={() => {}} />
+              <div className="border-2 border-dashed border-slate-200 rounded-md p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => {
+                  const input = document.getElementById('photoUpload') as HTMLInputElement
+                  if (input) input.click()
+                }}
+              >
+                {imagePreview ? (
+                  <div className="space-y-2">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="max-w-full max-h-32 mx-auto rounded-md object-cover"
+                    />
+                    <p className="text-sm text-slate-600">{selectedImage?.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {selectedImage && `${(selectedImage.size / 1024 / 1024).toFixed(2)} MB`}
+                    </p>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedImage(null)
+                        setImagePreview(null)
+                        const input = document.getElementById('photoUpload') as HTMLInputElement
+                        if (input) input.value = ''
+                      }}
+                    >
+                      Remover
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                    <p className="text-sm text-slate-500">Clique para selecionar ou arraste uma imagem</p>
+                    <p className="text-xs text-slate-400 mt-1">JPG, PNG ou GIF até 5MB</p>
+                  </>
+                )}
+                <Input 
+                  id="photoUpload" 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={handleImageUpload}
+                />
               </div>
             </div>
 
@@ -659,7 +755,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
                 onChange={handleInputChange}
                 placeholder="Nomes separados por vírgula"
               />
-              <p className="text-xs text-slate-500">Separe os nomes com vírgulas (ex: João, Maria, Carlos)</p>
+              <p className="text-xs text-slate-500">Separa os nomes com vírgulas (ex: João, Maria, Carlos)</p>
             </div>
           </>
         )
@@ -675,7 +771,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
 
     switch (contentType) {
       case "photo":
-        return !!formData.caption
+        return !!formData.caption && !!selectedImage
       case "text":
         return !!formData.title && !!formData.content
       case "academic":

@@ -76,9 +76,8 @@ export default function HomePage() {
                           <User className="w-5 h-5" />
                           <span>{author}</span>
                         </div>
-                        {/* Indicar se é o usuário atual */}
                         {user && user.username === author && (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Você</span>
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Eu</span>
                         )}
                       </CardTitle>
                     </CardHeader>
