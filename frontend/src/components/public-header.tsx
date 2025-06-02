@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Search, Calendar, Tag, Home, User, LogOut } from "lucide-react"
+import { Search, Calendar, Tag, Home, User, LogOut, Pencil } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import {
@@ -49,18 +49,18 @@ export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuLabel>Conta</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/admin" className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Painel Admin
+                    <Link href="/backoffice" className="flex items-center">
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Backoffice
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href={`/author/${encodeURIComponent(user.username)}`} className="flex items-center">
                       <User className="w-4 h-4 mr-2" />
-                      Meu Perfil Público
+                      Perfil
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

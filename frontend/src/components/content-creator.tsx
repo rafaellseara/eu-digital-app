@@ -241,7 +241,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
 
       if (result) {
         setSubmitMessage({ type: "success", text: "Conteúdo criado com sucesso!" })
-        router.push("/backoffice")
+        location.reload()
       } else {
         throw new Error("Falha ao criar conteúdo")
       }
