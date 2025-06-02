@@ -3,6 +3,7 @@ const router = express.Router();
 const uuidv4 = require('uuid').v4;
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const checkAdminFlag = require('../middleware/checkAdmin');
 
 const JWT_SECRET = 'uma_chave_super_secreta';
 
@@ -101,6 +102,11 @@ router.post('/google', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Erro no login.' });
   }
+});
+
+// GET /api/auth/isAdmin
+router.get('/isAdmin', checkAdminFlag, (req, res) => {
+  res.json({ isAdmin: req.user.isAdmin });
 });
 
 module.exports = router;
