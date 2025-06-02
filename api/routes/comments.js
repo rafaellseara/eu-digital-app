@@ -17,11 +17,11 @@ const ResourceModels = {
 
 // POST /api/{resourceTypePlural}/:id/comments
 // Exemplo: POST /api/photos/:id/comments
-router.post('/', authenticate, async (req, res) => {
+router.post('/', async (req, res) => {
   const { resourceId } = req.params;
   const resourceType = req.resourceType;
   const { content } = req.body;
-  const username = req.user.username;
+  const username = req.user?.username || req.body.author?.name || "Anónimo";
 
   // 1) Valida parâmetros
   if (!ResourceModels[resourceType]) {

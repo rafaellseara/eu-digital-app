@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, MessageCircle } from "lucide-react"
 import { toast } from "@/app/hooks/use-toast"
+import { useAuth } from "@/lib/auth"
 
 interface Comment {
   id: string
@@ -34,6 +35,7 @@ export function CommentsModal({ open, onClose, itemId, itemType }: CommentsModal
   const [newComment, setNewComment] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const { user } = useAuth()
 
   useEffect(() => {
     if (open && itemId && itemType) {
@@ -89,7 +91,7 @@ export function CommentsModal({ open, onClose, itemId, itemType }: CommentsModal
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content: newComment.trim() }),
+        body: JSON.stringify({ content: newComment.trim(), author: { name: user?.username } }),
       })
 
       if (response.ok) {

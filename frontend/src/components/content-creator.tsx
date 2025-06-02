@@ -161,68 +161,83 @@ export function ContentCreator({ author }: ContentCreatorProps) {
 
     try {
       const actualAuthor = user?.username || author
-      const form = new FormData()
+      const contentId = crypto.randomUUID()
+      const createdAt = new Date().toISOString()
+      const visibility = isPublic ? "public" : "private"
 
-      // Dados comuns
-      form.append("id", crypto.randomUUID())
-      form.append("author", actualAuthor)
-      form.append("type", contentType)
-      form.append("visibility", isPublic ? "public" : "private")
-      form.append("createdAt", new Date().toISOString())
+      let payload: FormData | Record<string, any>
 
-      // Adiciona tags individualmente
-      tags.forEach((tag) => form.append("tags[]", tag))
+      if (contentType === "photo") {
+        if (!selectedImage) throw new Error("Por favor, selecione uma imagem.")
 
-      // Dados específicos
-      switch (contentType) {
-        case "photo":
-          if (!selectedImage) throw new Error("Por favor, selecione uma imagem.")
-          form.append("caption", formData.caption)
-          form.append("format", selectedImage.type.split("/")[1])
-          form.append("originalName", selectedImage.name)
-          form.append("size", selectedImage.size.toString())
-          form.append("image", selectedImage) // aqui está a imagem real!
-          if (formData.location) {
-            form.append("location", formData.location)
-          }
-          break
-        case "text":
-          form.append("title", formData.title)
-          form.append("content", formData.content)
-          form.append("summary", formData.summary)
-          break
-        case "academic":
-          form.append("institution", formData.institution)
-          form.append("course", formData.course)
-          form.append("grade", formData.grade)
-          form.append("scale", formData.scale)
-          form.append("evaluationDate", new Date(formData.evaluationDate).toISOString())
-          break
-        case "sport":
-          form.append("activity", formData.activity)
-          form.append("value", formData.value)
-          form.append("unit", formData.unit)
+        const form = new FormData()
+        form.append("id", contentId)
+        form.append("author", actualAuthor)
+        form.append("type", contentType)
+        form.append("visibility", visibility)
+        form.append("createdAt", createdAt)
+        tags.forEach((tag) => form.append("tags[]", tag))
+
+        form.append("caption", formData.caption)
+        form.append("format", selectedImage.type.split("/")[1])
+        form.append("originalName", selectedImage.name)
+        form.append("size", selectedImage.size.toString())
+        form.append("image", selectedImage)
+        if (formData.location) {
           form.append("location", formData.location)
-          form.append("activityDate", new Date(formData.activityDate).toISOString())
-          break
-        case "event":
-          form.append("title", formData.title)
-          form.append("description", formData.content)
-          form.append("location", formData.location)
-          form.append("startDate", new Date(formData.startDate).toISOString())
-          form.append("endDate", new Date(formData.endDate).toISOString())
-          form.append("participants", formData.participants)
-          break
-        case "file":
-          form.append("originalName", formData.originalName)
-          form.append("description", formData.content)
-          form.append("size", formData.fileSize.toString())
-          form.append("format", formData.format)
-          break
+        }
+
+        payload = form
+      } else {
+        const json: Record<string, any> = {
+          id: contentId,
+          author: actualAuthor,
+          type: contentType,
+          visibility,
+          createdAt,
+          tags,
+        }
+
+        switch (contentType) {
+          case "text":
+            json.title = formData.title
+            json.content = formData.content
+            json.summary = formData.summary
+            break
+          case "academic":
+            json.institution = formData.institution
+            json.course = formData.course
+            json.grade = formData.grade
+            json.scale = formData.scale
+            json.evaluationDate = new Date(formData.evaluationDate).toISOString()
+            break
+          case "sport":
+            json.activity = formData.activity
+            json.value = formData.value
+            json.unit = formData.unit
+            json.location = formData.location
+            json.activityDate = new Date(formData.activityDate).toISOString()
+            break
+          case "event":
+            json.title = formData.title
+            json.description = formData.content
+            json.location = formData.location
+            json.startDate = new Date(formData.startDate).toISOString()
+            json.endDate = new Date(formData.endDate).toISOString()
+            json.participants = formData.participants
+            break
+          case "file":
+            json.originalName = formData.originalName
+            json.description = formData.content
+            json.size = formData.fileSize
+            json.format = formData.format
+            break
+        }
+
+        payload = json
       }
 
-      // Submeter
-      const result = await createItem(contentType, form, sessionStorage.getItem("auth-token") || "")
+      const result = await createItem(contentType, payload, sessionStorage.getItem("auth-token") || "")
 
       if (result) {
         setSubmitMessage({ type: "success", text: "Conteúdo criado com sucesso!" })
@@ -241,6 +256,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
       setIsSubmitting(false)
     }
   }
+
 
 
   // Renderizar campos específicos com base no tipo de conteúdo

@@ -228,17 +228,28 @@ export async function fetchAuthors(token: string = ""): Promise<string[]> {
   }
 }
 
-export async function createItem(itemType: string, data: FormData, token: string = ""): Promise<TimelineItem | null> {
+export async function createItem(
+  itemType: string,
+  data: FormData | Record<string, any>,
+  token: string = ""
+): Promise<TimelineItem | null> {
   const endpoint = getEndpointForType(itemType)
   if (!endpoint) return null
+
+  const isPhoto = itemType === "photo"
 
   try {
     const response = await fetch(`${API_BASE}/${endpoint}`, {
       method: "POST",
-      headers: {
-        ...getAuthHeaders(token),
-      },
-      body: data,
+      headers: isPhoto
+        ? {
+            ...getAuthHeaders(token),
+          }
+        : {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(token),
+          },
+      body: isPhoto ? (data as FormData) : JSON.stringify(data),
     })
 
     if (!response.ok) throw new Error(`Failed to create ${itemType}`)
@@ -248,6 +259,7 @@ export async function createItem(itemType: string, data: FormData, token: string
     return null
   }
 }
+
 
 
 // Função auxiliar para obter o endpoint correto com base no tipo
