@@ -21,12 +21,12 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
 
   // Tipos de conteúdo disponíveis
   const contentTypes = [
-    { id: "photo", label: "Fotografias", icon: "📸", count: 45 },
-    { id: "text", label: "Textos", icon: "💭", count: 67 },
-    { id: "academic", label: "Académico", icon: "🎓", count: 12 },
-    { id: "sport", label: "Desporto", icon: "🏃", count: 23 },
-    { id: "file", label: "Ficheiros", icon: "📄", count: 18 },
-    { id: "event", label: "Eventos", icon: "📅", count: 34 },
+    { id: "Photo", label: "Fotografias", icon: "📸", count: 45 },
+    { id: "Texts", label: "Textos", icon: "💭", count: 67 },
+    { id: "Academic", label: "Académico", icon: "🎓", count: 12 },
+    { id: "SportsResult", label: "Desporto", icon: "🏃", count: 23 },
+    { id: "File", label: "Ficheiros", icon: "📄", count: 18 },
+    { id: "Event", label: "Eventos", icon: "📅", count: 34 },
   ]
 
   const popularTags = [
@@ -107,7 +107,7 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button variant="outline" size="sm" className="w-full" onClick={clearFilters}>
+          <Button variant="outline" size="sm" className="w-full cursor-pointer" onClick={clearFilters}>
             Limpar Filtros
           </Button>
         </CardContent>
@@ -122,7 +122,7 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
             <Button
               key={type.id}
               variant={selectedTypes.includes(type.id) ? "default" : "ghost"}
-              className="w-full justify-between h-auto p-3"
+              className="w-full justify-between h-auto p-3 cursor-pointer"
               onClick={() => toggleType(type.id)}
             >
               <div className="flex items-center space-x-2">
@@ -142,16 +142,16 @@ export function ContentFilters({ author, selectedTag }: ContentFiltersProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="ghost" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start cursor-pointer">
             Este mês
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start cursor-pointer">
             Últimos 3 meses
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start cursor-pointer">
             Este ano
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start cursor-pointer">
             Arquivo completo
           </Button>
         </CardContent>

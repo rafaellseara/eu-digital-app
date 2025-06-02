@@ -1,4 +1,3 @@
-// api/app.js
 const express = require('express');
 const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
@@ -10,16 +9,14 @@ require('dotenv').config();
 
 const app = express();
 
-// (a) Conectar ao MongoDB
 const MONGO_URL =
   process.env.MONGO_URL ||
   'mongodb://root:1234@localhost:27017/eu_digital?authSource=admin';
-mongoose
+  mongoose
   .connect(MONGO_URL)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// (b) JSON middleware
 app.use(express.json());
 
 // CORS
@@ -36,10 +33,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// ——————————  
-// (g) Monte as rotas de Comment **antes** dos routers CRUD de cada recurso
-// ——————————
 
 // Comentários de Photos
 app.use(
@@ -101,7 +94,7 @@ app.use(
   commentsRouter
 );
 
-// (d) Rotas principais CRUD (depois dos comentários)
+// Rotas principais CRUD (depois dos comentários)
 app.use('/api/ingest', require('./routes/ingest'));
 app.use('/api/photos', require('./routes/photos'));
 app.use('/api/texts', require('./routes/texts'));
@@ -110,10 +103,10 @@ app.use('/api/sportResults', require('./routes/sportResults'));
 app.use('/api/files', require('./routes/files'));
 app.use('/api/events', require('./routes/events'));
 
-// (e) Swagger UI
+// Swagger UI
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// (f) Autenticação
+// Autenticação
 app.use('/api/auth', authRouter);
 
 module.exports = app;

@@ -51,7 +51,7 @@ export default function HomePage() {
                 Bem-vindo de volta, <strong>{user.username}</strong>!
               </p>
               <Link href="/backoffice">
-                <Button className="mt-6" size="sm">
+                <Button className="mt-6 cursor-pointer" size="sm">
                   <Plus className="w-4 h-4 mr-2" />
                   Adicionar novo item
                 </Button>
@@ -86,7 +86,7 @@ export default function HomePage() {
                         Explore a linha do tempo e conteúdos compartilhados por {author}.
                       </p>
                       <Link href={`/author/${encodeURIComponent(author)}`}>
-                        <Button className="w-full">
+                        <Button className="w-full cursor-pointer">
                           Ver perfil <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>

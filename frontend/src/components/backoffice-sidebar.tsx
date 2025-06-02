@@ -1,26 +1,23 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  FileText,
-  ImageIcon,
-  Activity,
-  GraduationCap,
-  Calendar,
-  MessageSquare,
-  Upload,
-  Download,
-  Share2,
-} from "lucide-react"
+import { FileText, ImageIcon, Activity, GraduationCap, Calendar, MessageSquare, Upload, Download } from "lucide-react"
 import type { TimelineItem } from "@/lib/api"
+import { ImportModal } from "@/components/import-modal"
+import { useToast } from "@/app/hooks/use-toast"
 
-interface AdminSidebarProps {
+interface BackofficeSidebarProps {
   items: TimelineItem[]
+  onDataImported?: () => void
 }
 
-export function BackofficeSidebar({ items }: AdminSidebarProps) {
+export function BackofficeSidebar({ items, onDataImported }: BackofficeSidebarProps) {
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const { toast } = useToast()
+
   const countByType = items.reduce(
     (acc, item) => {
       const type = item.type
@@ -33,14 +30,16 @@ export function BackofficeSidebar({ items }: AdminSidebarProps) {
   const publicItems = items.filter((item) => item.visibility === "public").length
   const privateItems = items.filter((item) => item.visibility !== "public").length
 
-  const stats = [
-    { icon: FileText, label: "Total de Itens", value: items.length, color: "text-blue-600" },
-    { icon: ImageIcon, label: "Fotografias", value: countByType["photo"] || 0, color: "text-green-600" },
-    { icon: MessageSquare, label: "Textos", value: countByType["text"] || 0, color: "text-purple-600" },
-    { icon: GraduationCap, label: "Académico", value: countByType["academic"] || 0, color: "text-orange-600" },
-    { icon: Activity, label: "Desporto", value: countByType["sport"] || 0, color: "text-red-600" },
-    { icon: Calendar, label: "Eventos", value: countByType["event"] || 0, color: "text-indigo-600" },
-  ]
+  const handleImportSuccess = (ingestedIds: string[]) => {
+    toast({
+      title: "Importação concluída",
+      description: `${ingestedIds.length} ${ingestedIds.length === 1 ? "item foi" : "itens foram"} importados com sucesso.`,
+    })
+
+    if (onDataImported) {
+      onDataImported()
+    }
+  }
 
   return (
     <aside className="w-80 bg-white border-r border-slate-200 p-6 space-y-6">
@@ -49,7 +48,7 @@ export function BackofficeSidebar({ items }: AdminSidebarProps) {
           <CardTitle className="text-lg">Ações Rápidas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-start">
+          <Button variant="outline" className="w-full justify-start" onClick={() => setIsImportModalOpen(true)}>
             <Upload className="w-4 h-4 mr-2" />
             Importar Dados
           </Button>
@@ -77,6 +76,13 @@ export function BackofficeSidebar({ items }: AdminSidebarProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de importação */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={handleImportSuccess}
+      />
     </aside>
   )
 }

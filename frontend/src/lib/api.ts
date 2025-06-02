@@ -260,6 +260,24 @@ export async function createItem(
   }
 }
 
+export async function ingestData(token: string = "", data: any) : Promise<any>{
+  try {
+    const response = await fetch(`${API_BASE}/ingest`, {
+      method: "POST",
+      headers: {
+        ...getAuthHeaders(token)
+      },
+      body: data as FormData,
+    })
+
+    if (!response.ok) throw new Error("Failed to ingest data")
+    return await response.json()
+  } catch (error) {
+    console.error("Error ingesting data:", error)
+    return null
+  }
+}
+
 
 
 // Função auxiliar para obter o endpoint correto com base no tipo

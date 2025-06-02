@@ -16,7 +16,6 @@ router.post(
   upload.single('package'),
   async (req, res) => {
     try {
-      // Passa o caminho do ZIP e o ownerId (req.user.id) para o serviço
       const ids = await processSip(req.file.path, req.user.id);
       res.status(201).json({ ingested: ids });
     } catch (err) {
