@@ -363,20 +363,10 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className={likedItems.has(item.id) ? "text-red-500" : "text-slate-500"}
-                            onClick={() => toggleLike(item.id)}
-                          >
-                            <Heart className={`w-4 h-4 mr-1 ${likedItems.has(item.id) ? "fill-current" : ""}`} />
-                            {likedItems.has(item.id) ? 1 : 0}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
                             className="text-slate-500 hover:text-slate-700"
                             onClick={() => openCommentsModal(item.id, itemType)}
                           >
                             <MessageCircle className="w-4 h-4 mr-1" />
-                            {commentCount}
                           </Button>
                         </div>
                         <ShareModal item={item} />
