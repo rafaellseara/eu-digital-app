@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load('../docs/openapi.yaml');
+const swaggerDocument = YAML.load('./docs/openapi.yaml');
 const authRouter = require('./routes/auth');
 const commentsRouter = require('./routes/comments');
 require('dotenv').config();
