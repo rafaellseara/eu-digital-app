@@ -1,3 +1,5 @@
+// src/app/author/[username]/page.tsx
+
 import { Suspense } from "react"
 import { fetchTimelineItems } from "@/lib/api"
 import { TimelineView } from "@/components/timeline-view"
@@ -5,18 +7,18 @@ import { PublicHeader } from "@/components/public-header"
 import { ContentFilters } from "@/components/content-filters"
 import { notFound } from "next/navigation"
 
-interface AuthorPageProps {
-  params: {
-    username: string
-  }
-  searchParams: {
-    tag?: string
-  }
-}
+export default async function AuthorPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ username: string }>
+  searchParams: Promise<{ tag?: string }>
+}) {
+  const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
 
-export default async function AuthorPage({ params, searchParams }: AuthorPageProps) {
-  const username = decodeURIComponent(params.username)
-  const tag = searchParams.tag
+  const username = decodeURIComponent(resolvedParams.username)
+  const tag = resolvedSearchParams?.tag
   const items = await fetchTimelineItems(username, "public", tag)
 
   if (items.length === 0) {
@@ -26,7 +28,6 @@ export default async function AuthorPage({ params, searchParams }: AuthorPagePro
   return (
     <div className="min-h-screen bg-slate-50/50">
       <PublicHeader currentAuthor={username} />
-
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-slate-800 mb-4">Perfil de {username}</h1>

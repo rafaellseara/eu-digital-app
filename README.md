@@ -6,3 +6,5 @@ Aplicação web para gestão do “eu digital” do utilizador:
 - API RESTful em Express
 - Interface de administração (CRUD, estatísticas)
 - Frontend público (timeline, filtros temáticos)
+
+

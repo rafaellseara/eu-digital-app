@@ -1,24 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Calendar,
-  MapPin,
-  Heart,
-  MessageCircle,
-  Eye,
-  EyeOff,
-  GraduationCap,
-  Activity,
-  FileText,
-  Download,
-} from "lucide-react"
-import { type TimelineItem, getItemType } from "@/lib/api"
+import { Calendar, MapPin, Heart, MessageCircle, Eye, EyeOff, GraduationCap, Activity, FileText } from "lucide-react"
+import { type TimelineItem, getItemType, getEndpointForType } from "@/lib/api"
 import { ShareModal } from "@/components/share-modal"
 import { PhotoModal } from "@/components/photo-modal"
+import { CommentsModal } from "@/components/comments-modal"
 
 interface TimelineViewProps {
   items: TimelineItem[]
@@ -27,9 +17,40 @@ interface TimelineViewProps {
 
 export function TimelineView({ items, isPublic }: TimelineViewProps) {
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set())
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({})
   const [modalOpen, setModalOpen] = useState(false)
   const [modalSrc, setModalSrc] = useState("")
   const [modalAlt, setModalAlt] = useState("")
+  const [commentsModalOpen, setCommentsModalOpen] = useState(false)
+  const [selectedItemId, setSelectedItemId] = useState<string>("")
+  const [selectedItemType, setSelectedItemType] = useState<string>("")
+
+  // Carregar contagem de comentários para todos os itens
+  useEffect(() => {
+    if (isPublic && items.length > 0) {
+      loadCommentCounts()
+    }
+  }, [items, isPublic])
+
+  const loadCommentCounts = async () => {
+    try {
+      const itemIds = items.map((item) => item.id)
+      const response = await fetch("/api/comments/counts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ itemIds }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setCommentCounts(data.counts || {})
+      }
+    } catch (error) {
+      console.error("Erro ao carregar contagem de comentários:", error)
+    }
+  }
 
   const toggleLike = (id: string) => {
     setLikedItems((prev) => {
@@ -41,6 +62,22 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
       }
       return newSet
     })
+  }
+
+  const openCommentsModal = (itemId: string, itemType: string) => {
+    setSelectedItemId(itemId)
+    setSelectedItemType(itemType)
+    setCommentsModalOpen(true)
+  }
+
+  const closeCommentsModal = () => {
+    setCommentsModalOpen(false)
+    setSelectedItemId("")
+    setSelectedItemType("")
+    // Recarregar contagem de comentários após fechar o modal
+    if (isPublic) {
+      loadCommentCounts()
+    }
   }
 
   const getTypeIcon = (type: string) => {
@@ -85,12 +122,12 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
     const a = document.createElement("a")
     a.href = "http://localhost:3000/api/files/" + file.id + "/download"
     a.download = file.originalName
-  
+
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
   }
-  
+
   // Renderizar conteúdo específico com base no tipo de item
   const renderItemContent = (item: TimelineItem) => {
     const itemType = getItemType(item)
@@ -98,7 +135,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
     switch (itemType) {
       case "photo":
         const photo = item as any
-        const photoUrl = `https://picsum.photos/${photo.resolution.width}/${photo.resolution.height}`
+        const photoUrl = `http://localhost:3000/api/photos/${photo.id}`
         return (
           <>
             {photo.caption && <p className="text-slate-700 mb-4">{photo.caption}</p>}
@@ -111,7 +148,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
               }}
             >
               <img
-                src={photoUrl}
+                src={photoUrl || "/placeholder.svg"}
                 alt={photo.caption || "Photo"}
                 className="w-full h-full object-cover"
               />
@@ -124,7 +161,6 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
             )}
           </>
         )
-
 
       case "text":
         const text = item as any
@@ -185,7 +221,9 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
         const file = item as any
         return (
           <>
-            <div className="flex items-center mb-3 w-min rounded-3xl py-1 cursor-pointer hover:scale-105 transition-transform" onClick={() => handleFileDownload(file)}
+            <div
+              className="flex items-center mb-3 w-min rounded-3xl py-1 cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => handleFileDownload(file)}
             >
               <FileText className="w-5 h-5 mr-2" />
               <h3 className="font-medium text-lg">{file.originalName}</h3>
@@ -256,9 +294,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-slate-800">
-          {isPublic ? "Timeline Pública" : "A Minha Timeline"}
-        </h2>
+        <h2 className="text-2xl font-semibold text-slate-800">{isPublic ? "Timeline Pública" : "A Minha Timeline"}</h2>
         <div className="text-sm text-slate-500">
           {items.length} {items.length === 1 ? "item" : "itens"}
         </div>
@@ -270,7 +306,8 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
 
         <div className="space-y-8">
           {items.map((item) => {
-            const itemType = getItemType(item)
+            const itemType = getEndpointForType(getItemType(item))
+            const commentCount = commentCounts[item.id] || 0
 
             return (
               <div key={item.id} className="relative flex items-start space-x-4">
@@ -331,8 +368,14 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
                             <Heart className={`w-4 h-4 mr-1 ${likedItems.has(item.id) ? "fill-current" : ""}`} />
                             {likedItems.has(item.id) ? 1 : 0}
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-slate-500">
-                            <MessageCircle className="w-4 h-4 mr-1" />0
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-slate-500 hover:text-slate-700"
+                            onClick={() => openCommentsModal(item.id, itemType)}
+                          >
+                            <MessageCircle className="w-4 h-4 mr-1" />
+                            {commentCount}
                           </Button>
                         </div>
                         <ShareModal item={item} />
@@ -345,7 +388,15 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
           })}
         </div>
       </div>
+
       <PhotoModal open={modalOpen} onClose={() => setModalOpen(false)} src={modalSrc} alt={modalAlt} />
+
+      <CommentsModal
+        open={commentsModalOpen}
+        onClose={closeCommentsModal}
+        itemId={selectedItemId}
+        itemType={selectedItemType}
+      />
     </div>
   )
 }

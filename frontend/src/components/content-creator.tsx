@@ -160,117 +160,77 @@ export function ContentCreator({ author }: ContentCreatorProps) {
     setSubmitMessage(null)
 
     try {
-      // Usar o username do usuário autenticado se disponível
       const actualAuthor = user?.username || author
+      const form = new FormData()
 
-      // Preparar dados comuns para todos os tipos
-      const baseData = {
-        id: crypto.randomUUID(), // Gerar um UUID para o novo item
-        author: actualAuthor,
-        type: contentType,
-        visibility: isPublic ? "public" : "private",
-        tags,
-        createdAt: new Date().toISOString(),
-      }
+      // Dados comuns
+      form.append("id", crypto.randomUUID())
+      form.append("author", actualAuthor)
+      form.append("type", contentType)
+      form.append("visibility", isPublic ? "public" : "private")
+      form.append("createdAt", new Date().toISOString())
 
-      // Adicionar dados específicos com base no tipo
-      let specificData = {}
+      // Adiciona tags individualmente
+      tags.forEach((tag) => form.append("tags[]", tag))
 
+      // Dados específicos
       switch (contentType) {
-        case "text":
-          specificData = {
-            title: formData.title,
-            content: formData.content,
-            summary: formData.summary,
-          }
-          break
-
         case "photo":
-          if (!selectedImage) {
-            throw new Error("Por favor, selecione uma imagem.")
-          }
-
-          // Convert image to buffer
-          const imageBuffer = await convertImageToBuffer(selectedImage)
-          
-          specificData = {
-            caption: formData.caption,
-            format: selectedImage.type.split('/')[1], // Extract format from MIME type
-            resolution: {
-              width: 1200, // You might want to get actual dimensions
-              height: 800,
-            },
-            location: formData.location
-              ? {
-                  lat: 0,
-                  lon: 0,
-                  description: formData.location,
-                }
-              : undefined,
-            imageBuffer: Array.from(new Uint8Array(imageBuffer)), // Convert ArrayBuffer to number array
-            originalName: selectedImage.name,
-            size: selectedImage.size,
+          if (!selectedImage) throw new Error("Por favor, selecione uma imagem.")
+          form.append("caption", formData.caption)
+          form.append("format", selectedImage.type.split("/")[1])
+          form.append("originalName", selectedImage.name)
+          form.append("size", selectedImage.size.toString())
+          form.append("image", selectedImage) // aqui está a imagem real!
+          if (formData.location) {
+            form.append("location", formData.location)
           }
           break
-
-        case "sport":
-          specificData = {
-            activity: formData.activity,
-            value: formData.value,
-            unit: formData.unit,
-            location: formData.location,
-            activityDate: new Date(formData.activityDate).toISOString(),
-          }
+        case "text":
+          form.append("title", formData.title)
+          form.append("content", formData.content)
+          form.append("summary", formData.summary)
           break
-
         case "academic":
-          specificData = {
-            institution: formData.institution,
-            course: formData.course,
-            grade: formData.grade,
-            scale: formData.scale,
-            evaluationDate: new Date(formData.evaluationDate).toISOString(),
-          }
+          form.append("institution", formData.institution)
+          form.append("course", formData.course)
+          form.append("grade", formData.grade)
+          form.append("scale", formData.scale)
+          form.append("evaluationDate", new Date(formData.evaluationDate).toISOString())
           break
-
+        case "sport":
+          form.append("activity", formData.activity)
+          form.append("value", formData.value)
+          form.append("unit", formData.unit)
+          form.append("location", formData.location)
+          form.append("activityDate", new Date(formData.activityDate).toISOString())
+          break
         case "event":
-          specificData = {
-            title: formData.title,
-            description: formData.content,
-            location: formData.location,
-            startDate: new Date(formData.startDate).toISOString(),
-            endDate: new Date(formData.endDate).toISOString(),
-            participants: formData.participants ? formData.participants.split(",").map((p) => p.trim()) : [],
-          }
+          form.append("title", formData.title)
+          form.append("description", formData.content)
+          form.append("location", formData.location)
+          form.append("startDate", new Date(formData.startDate).toISOString())
+          form.append("endDate", new Date(formData.endDate).toISOString())
+          form.append("participants", formData.participants)
           break
-
         case "file":
-          specificData = {
-            originalName: formData.originalName,
-            description: formData.content,
-            size: formData.fileSize,
-            format: formData.format,
-          }
+          form.append("originalName", formData.originalName)
+          form.append("description", formData.content)
+          form.append("size", formData.fileSize.toString())
+          form.append("format", formData.format)
           break
       }
 
-      const itemData = {
-        ...baseData,
-        ...specificData,
-      }
-
-      const result = await createItem(contentType, itemData, sessionStorage.getItem("auth-token") || "")
+      // Submeter
+      const result = await createItem(contentType, form, sessionStorage.getItem("auth-token") || "")
 
       if (result) {
-        setSubmitMessage({
-          type: "success",
-          text: "Conteúdo criado com sucesso!",
-        })
-
+        setSubmitMessage({ type: "success", text: "Conteúdo criado com sucesso!" })
         router.push("/backoffice")
       } else {
         throw new Error("Falha ao criar conteúdo")
       }
+
     } catch (error) {
       console.error("Erro ao criar conteúdo:", error)
       setSubmitMessage({
@@ -281,6 +241,7 @@ export function ContentCreator({ author }: ContentCreatorProps) {
       setIsSubmitting(false)
     }
   }
+
 
   // Renderizar campos específicos com base no tipo de conteúdo
   const renderContentTypeFields = () => {
