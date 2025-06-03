@@ -323,7 +323,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <Badge className={getTypeColor(visualItemType) + " select-none"}>{itemType}</Badge>
+                          <Badge className={getTypeColor(visualItemType) + " select-none"}>{getItemType(item)}</Badge>
                           {!isPublic && (
                             <Badge variant={item.visibility === "public" ? "default" : "secondary"}>
                               {item.visibility === "public" ? (
