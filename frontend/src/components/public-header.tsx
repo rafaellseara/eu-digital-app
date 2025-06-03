@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Search, Calendar, Tag, Home, User, LogOut, Pencil } from "lucide-react"
+import { Search, Calendar, Tag, Home, User, LogOut, Pencil, BarChart3 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import {
@@ -13,6 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useEffect, useState } from "react"
+import { isAdmin } from "@/lib/api"
 
 interface PublicHeaderProps {
   currentAuthor?: string
@@ -20,6 +22,16 @@ interface PublicHeaderProps {
 
 export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
   const { user, logout } = useAuth()
+  const [userAdmin, setUserAdmin] = useState(false)
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const adminStatus = await isAdmin(sessionStorage.getItem("auth-token") || "", user?.username || "")
+      setUserAdmin(adminStatus);
+    }
+    checkAdminStatus();
+  });
+
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
@@ -39,7 +51,6 @@ export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
               </div>
             </div>
 
-            {/* Menu do usuário se estiver logado */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -63,6 +74,14 @@ export function PublicHeader({ currentAuthor }: PublicHeaderProps) {
                       Perfil
                     </Link>
                   </DropdownMenuItem>
+                  { userAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center">
+                        <BarChart3 className="w-4 h-4 mr-2" />
+                        Admin
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="flex items-center text-red-600">
                     <LogOut className="w-4 h-4 mr-2" />

@@ -1,7 +1,7 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { fetchTimelineItems } from "@/lib/api"
+import { fetchTimelineItems, isAdmin } from "@/lib/api"
 import { BackofficeHeader } from "@/components/backoffice-header"
 import { TimelineView } from "@/components/timeline-view"
 import { ContentCreator } from "@/components/content-creator"
@@ -10,15 +10,15 @@ import { UserProfileCard } from "@/components/user-profile-card"
 import { useAuth } from "@/lib/auth"
 
 export default function BackofficePage() {
-  const [items, setItems] = useState<any[]>([])
-  const { user } = useAuth()
+  const [items, setItems] = useState<any[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadItems = async () => {
       const fetchedItems = await fetchTimelineItems(user?.username || "", "private", undefined, sessionStorage.getItem("auth-token") || "")
-      setItems(fetchedItems)
+      setItems(fetchedItems);
     }
-    loadItems()
+    loadItems();
   }, []);
 
 

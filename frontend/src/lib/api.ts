@@ -260,6 +260,23 @@ export async function createItem(
   }
 }
 
+export async function isAdmin(token: string = "", username: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE}/auth/isAdmin?username=${username}`, {
+      headers: {
+        ...getAuthHeaders(token),
+      },
+    })
+
+    if (!response.ok) throw new Error("Failed to check admin status")
+    const data = await response.json()
+    return data.isAdmin || false
+  } catch (error) {
+    console.error("Error checking admin status:", error)
+    return false
+  }
+}
+
 export async function ingestData(token: string = "", data: any) : Promise<any>{
   try {
     const response = await fetch(`${API_BASE}/ingest`, {

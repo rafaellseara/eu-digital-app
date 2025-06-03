@@ -77,7 +77,6 @@ export function BackofficeSidebar({ items, onDataImported }: BackofficeSidebarPr
         </CardContent>
       </Card>
 
-      {/* Modal de importação */}
       <ImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}

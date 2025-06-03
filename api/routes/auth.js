@@ -3,7 +3,8 @@ const router = express.Router();
 const uuidv4 = require('uuid').v4;
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const checkAdminFlag = require('../middleware/checkAdmin');
+
+const admins = ['ricardo', 'joaodlobo'];
 
 const JWT_SECRET = 'uma_chave_super_secreta';
 
@@ -83,7 +84,7 @@ router.post('/google', async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({ error: 'email é obrigatório.' });
+      return res.status(400).json({ error: 'Email é obrigatório.' });
     }
 
     // Procura pelo email ou pelo username
@@ -105,8 +106,8 @@ router.post('/google', async (req, res) => {
 });
 
 // GET /api/auth/isAdmin
-router.get('/isAdmin', checkAdminFlag, (req, res) => {
-  res.json({ isAdmin: req.user.isAdmin });
+router.get('/isAdmin', (req, res) => {
+  res.json({ isAdmin: admins.includes(req.query.username) });
 });
 
 module.exports = router;
