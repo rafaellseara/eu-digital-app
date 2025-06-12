@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 
 // (a) Conectar ao MongoDB
-const MONGO_URL = 'mongodb://root:1234@mongo:27017/eu_digital?authSource=admin';
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://root:1234@mongo:27017/eu_digital?authSource=admin';
 console.log('🔗 URI usada para ligar ao Mongo:', MONGO_URL);
 
 mongoose

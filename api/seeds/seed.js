@@ -21,7 +21,7 @@ function getRandomFriends(usernames, count = 2) {
 }
 
 async function seed() {
-  const MONGO_URL = process.env.MONGO_URL || 'mongodb://root:1234@localhost:27017/eu_digital?authSource=admin';
+  const MONGO_URL = process.env.MONGO_URL || 'mongodb://root:1234@mongo:27017/eu_digital?authSource=admin';
   await mongoose.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
   console.log('Conectado ao MongoDB');
 
