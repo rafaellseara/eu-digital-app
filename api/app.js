@@ -35,7 +35,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Comentários de Photos
 app.use(
   '/api/photos/:resourceId/comments',
   (req, res, next) => {
@@ -45,7 +44,6 @@ app.use(
   commentsRouter
 );
 
-// Comentários de Texts
 app.use(
   '/api/texts/:resourceId/comments',
   (req, res, next) => {
@@ -55,7 +53,6 @@ app.use(
   commentsRouter
 );
 
-// Comentários de AcademicResults
 app.use(
   '/api/academicResults/:resourceId/comments',
   (req, res, next) => {
@@ -65,7 +62,6 @@ app.use(
   commentsRouter
 );
 
-// Comentários de SportResults
 app.use(
   '/api/sportResults/:resourceId/comments',
   (req, res, next) => {
@@ -75,7 +71,6 @@ app.use(
   commentsRouter
 );
 
-// Comentários de Files
 app.use(
   '/api/files/:resourceId/comments',
   (req, res, next) => {
@@ -85,7 +80,6 @@ app.use(
   commentsRouter
 );
 
-// Comentários de Events
 app.use(
   '/api/events/:resourceId/comments',
   (req, res, next) => {
@@ -95,7 +89,6 @@ app.use(
   commentsRouter
 );
 
-// Rotas principais CRUD (depois dos comentários)
 app.use('/api/ingest', require('./routes/ingest'));
 app.use('/api/photos', require('./routes/photos'));
 app.use('/api/texts', require('./routes/texts'));
@@ -104,10 +97,8 @@ app.use('/api/sportResults', require('./routes/sportResults'));
 app.use('/api/files', require('./routes/files'));
 app.use('/api/events', require('./routes/events'));
 
-// Swagger UI
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Autenticação
 app.use('/api/auth', authRouter);
 
 module.exports = app;
