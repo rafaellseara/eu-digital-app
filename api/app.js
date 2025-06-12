@@ -7,10 +7,6 @@ const authRouter = require('./routes/auth');
 const commentsRouter = require('./routes/comments');
 require('dotenv').config();
 
-console.log('✅ ENTROU EM app.js');
-console.log('🟢 Caminho atual:', __dirname);
-console.log('🟢 Ficheiros disponíveis:', require('fs').readdirSync('./docs'));
-
 const app = express();
 
 // (a) Conectar ao MongoDB
