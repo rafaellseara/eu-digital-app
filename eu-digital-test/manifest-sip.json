@@ -1,6 +1,6 @@
 {
-  "id": "33333333-3333-3333-3333-333333333333",
-  "author": "joaodlobo",
+  "id": "33333333-5555-5555-5555-333333333333",
+  "author": "tester",
   "createdAt": "2025-05-06T12:00:00Z",
   "items": [
     {
@@ -8,8 +8,8 @@
       "path": "void.png",
       "metadata": {
         "visibility":"public",
-        "tags":["photo"],
-        "caption":"void.png",
+        "tags":["test"],
+        "caption":"Test.svg.png",
         "format":"png"
       }
     }

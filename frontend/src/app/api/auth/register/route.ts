@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const API_BASE = process.env.API_BASE || "http://localhost:3000/api"
+const API_BASE = process.env.API_BASE || "http://backend:3000/api"
 
 export async function POST(request: NextRequest) {
   try {

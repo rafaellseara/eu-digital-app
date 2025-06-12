@@ -7,12 +7,17 @@ const authRouter = require('./routes/auth');
 const commentsRouter = require('./routes/comments');
 require('dotenv').config();
 
+console.log('✅ ENTROU EM app.js');
+console.log('🟢 Caminho atual:', __dirname);
+console.log('🟢 Ficheiros disponíveis:', require('fs').readdirSync('./docs'));
+
 const app = express();
 
-const MONGO_URL =
-  process.env.MONGO_URL ||
-  'mongodb://root:1234@localhost:27017/eu_digital?authSource=admin';
-  mongoose
+// (a) Conectar ao MongoDB
+const MONGO_URL = 'mongodb://root:1234@mongo:27017/eu_digital?authSource=admin';
+console.log('🔗 URI usada para ligar ao Mongo:', MONGO_URL);
+
+mongoose
   .connect(MONGO_URL)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
