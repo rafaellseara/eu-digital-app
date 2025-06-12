@@ -364,7 +364,7 @@ export function TimelineView({ items, isPublic }: TimelineViewProps) {
                             variant="ghost"
                             size="sm"
                             className="text-slate-500 hover:text-slate-700"
-                            onClick={() => openCommentsModal(item.id, itemType)}
+                            onClick={() => openCommentsModal(item.id, itemType!)}
                           >
                             <MessageCircle className="w-4 h-4 mr-1" />
                           </Button>

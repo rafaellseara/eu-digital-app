@@ -23,8 +23,10 @@ import Link from "next/link"
 import { useState } from "react"
 import { ImportModal } from "@/components/import-modal"
 import { toast } from "../hooks/use-toast"
+import { useAuth } from "@/lib/auth"
 
 export default function AdminDashboard() {
+  const { logout } = useAuth()
   const stats = {
     totalPosts: 156,
     postsByType: {
