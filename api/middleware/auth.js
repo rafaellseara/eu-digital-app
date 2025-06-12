@@ -4,7 +4,6 @@ const User = require('../models/User');
 
 const JWT_SECRET = 'uma_chave_super_secreta';
 
-// Middleware para validar token e anexar req.user
 async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
