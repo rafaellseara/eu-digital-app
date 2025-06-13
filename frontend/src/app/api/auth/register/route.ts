@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const NEXT_PUBLIC_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://backend:3000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://backend:3000/api"
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fazer requisição para a API externa de registro
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

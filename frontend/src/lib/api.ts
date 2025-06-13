@@ -72,7 +72,7 @@ export function getItemType(item: TimelineItem): string {
   return "unknown"
 }
 
-const NEXT_PUBLIC_API_BASE_URL = "http://localhost:3000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000/api"
 
 function getAuthHeaders(token: string = ""): HeadersInit {
   if (token) {
@@ -100,7 +100,7 @@ export async function fetchTimelineItems(author?: string, visibility?: string, t
 }
 
 export async function fetchPhotos(author?: string, tag?: string, token: string = ""): Promise<Photo[]> {
-  let url = `${NEXT_PUBLIC_API_BASE_URL}/photos?`
+  let url = `${API_BASE}/photos?`
   if (author) url += `author=${encodeURIComponent(author)}&`
   if (tag) url += `tag=${encodeURIComponent(tag)}&`
 
@@ -119,7 +119,7 @@ export async function fetchPhotos(author?: string, tag?: string, token: string =
 }
 
 export async function fetchTexts(author?: string, tag?: string, token: string = ""): Promise<Text[]> {
-  let url = `${NEXT_PUBLIC_API_BASE_URL}/texts?`
+  let url = `${API_BASE}/texts?`
   if (author) url += `author=${encodeURIComponent(author)}&`
   if (tag) url += `tag=${encodeURIComponent(tag)}&`
 
@@ -138,7 +138,7 @@ export async function fetchTexts(author?: string, tag?: string, token: string = 
 }
 
 export async function fetchAcademicResults(author?: string, token: string = ""): Promise<AcademicResult[]> {
-  let url = `${NEXT_PUBLIC_API_BASE_URL}/academicResults?`
+  let url = `${API_BASE}/academicResults?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
@@ -156,7 +156,7 @@ export async function fetchAcademicResults(author?: string, token: string = ""):
 }
 
 export async function fetchSportResults(author?: string, token: string = ""): Promise<SportResult[]> {
-  let url = `${NEXT_PUBLIC_API_BASE_URL}/sportResults?`
+  let url = `${API_BASE}/sportResults?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
@@ -174,7 +174,7 @@ export async function fetchSportResults(author?: string, token: string = ""): Pr
 }
 
 export async function fetchFiles(author?: string, token: string = ""): Promise<FileItem[]> {
-  let url = `${NEXT_PUBLIC_API_BASE_URL}/files?`
+  let url = `${API_BASE}/files?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
@@ -192,7 +192,7 @@ export async function fetchFiles(author?: string, token: string = ""): Promise<F
 }
 
 export async function fetchEvents(author?: string, token: string = ""): Promise<Event[]> {
-  let url = `${NEXT_PUBLIC_API_BASE_URL}/events?`
+  let url = `${API_BASE}/events?`
   if (author) url += `author=${encodeURIComponent(author)}&`
 
   try {
@@ -239,7 +239,7 @@ export async function createItem(
   const isPhoto = itemType === "photo"
 
   try {
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/${endpoint}`, {
+    const response = await fetch(`${API_BASE}/${endpoint}`, {
       method: "POST",
       headers: isPhoto
         ? {
@@ -262,7 +262,7 @@ export async function createItem(
 
 export async function isAdmin(token: string = "", username: string): Promise<boolean> {
   try {
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/auth/isAdmin?username=${username}`, {
+    const response = await fetch(`${API_BASE}/auth/isAdmin?username=${username}`, {
       headers: {
         ...getAuthHeaders(token),
       },
@@ -279,7 +279,7 @@ export async function isAdmin(token: string = "", username: string): Promise<boo
 
 export async function ingestData(token: string = "", data: any) : Promise<any>{
   try {
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/ingest`, {
+    const response = await fetch(`${API_BASE}/ingest`, {
       method: "POST",
       headers: {
         ...getAuthHeaders(token)
