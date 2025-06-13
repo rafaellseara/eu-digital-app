@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 
 const JWT_SECRET = "uma_chave_super_secreta"
-const API_BASE = process.env.API_BASE || "http://backend:3000/api"
+const NEXT_PUBLIC_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://backend:3000/api"
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "email é obrigatório." }, { status: 400 })
     }
 
-    const response = await fetch(`${API_BASE}/auth/google`, {
+    const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/auth/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
